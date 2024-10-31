@@ -1,9 +1,10 @@
-import Image from "next/image";
+import { Navigation } from "@/components/navigation";
 
 export default function Home() {
   return (
-    <div style = {{textAlign: "center"}}>
-      <h1 style = {{padding: "4rem 0", fontSize: "8rem", fontWeight: "1000"}}>Evala</h1>
-    </div>
+    <main className="flex min-h-screen flex-col items-center p-10">
+      <Navigation />
+      <h1 className="text-6xl font-extrabold tracking-tight">Home page</h1>
+    </main>
   );
 }
