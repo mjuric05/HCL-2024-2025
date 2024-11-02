@@ -37,7 +37,15 @@ function processPage(page: Page, index: number, pathname: string) {
         <li key={index}>
             <Link
                 href={page.path}
-                className={pathname === page.path ? "font-extrabold" : ""}
+                className={
+                    page.path === "/"
+                        ? pathname === page.path
+                            ? "font-extrabold"
+                            : ""
+                        : pathname.startsWith(page.path)
+                            ? "font-extrabold"
+                            : ""
+                }
             >
                 {page.title}
             </Link>
@@ -48,7 +56,7 @@ function processPage(page: Page, index: number, pathname: string) {
 export function Navigation() {
     const pathname = usePathname();
     return (
-        <ul className="flex space-x-4 mb-4">
+        <ul className="flex justify-end space-x-4 mt-8">
             {pages.map((page, index) => processPage(page, index, pathname))}
         </ul>
     );
