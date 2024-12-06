@@ -15,7 +15,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Fast Rental",
+  title: "Easy Rent",
   description: "Your car is but a few clicks away",
 };
 
