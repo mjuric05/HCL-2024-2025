@@ -29,7 +29,7 @@ export default function Home() {
           {/* Paragraph and Button Container */}
           <div className="flex flex-col justify-center items-center w-1/2 text-center mr-6">
             <p className="font-inter text-xl max-w-[640px] mb-4">
-              Your journey starts here! At Easy Rent, we make renting a car simple, fast, and affordable. Whether you're a young professional heading to a meeting, a student planning an epic road trip, or a retiree exploring new destinations, we&rsquo;ve got the perfect ride for you.
+              Your journey starts here! At Easy Rent, we make renting a car simple, fast, and affordable. Whether you are a young professional heading to a meeting, a student planning an epic road trip, or a retiree exploring new destinations, we&rsquo;ve got the perfect ride for you.
             </p>
 
             {/* Button centered under the paragraph */}
