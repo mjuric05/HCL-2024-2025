@@ -26,8 +26,9 @@
 
 - Link to Assignment 1: [**Assignment 1**](https://github.com/mjuric05/HCL-2024-2025/tree/main/assignments/Figma%20essentials) <!-- Replace with actual URL -->
 - Link to Assignment 2: [**Assignment 2**](https://github.com/mjuric05/HCL-2024-2025/tree/main/assignments/User%20personas%20and%20information%20architecture) <!-- Replace with actual URL -->
-- Link to Assignment 3: [**Notion**](https://wary-bay-791.notion.site/Next-js-Deploying-Application-13c708c272668021a256e1cfb383ff52?pvs=4) or [**PDF**](https://github.com/mjuric05/HCL-2024-2025/tree/main/assignments/Next.js%20-%20Deploying%20Application) <!-- Replace with actual URL -->
-<!-- Add more assignments as necessary -->
+- Link to Assignment 3: [**Notion**](https://wary-bay-791.notion.site/Next-js-Deploying-Application-13c708c272668021a256e1cfb383ff52?pvs=4) or [**PDF**](https://github.com/mjuric05/HCL-2024-2025/tree/main/assignments/Next.js%20-%20Deploying%20Application) 
+- Link to Assignment 4: [**Notion Report**](https://wary-bay-791.notion.site/Low-High-fidelity-prototype-154708c27266807d94bbc9300a6d8e78?pvs=73) and [**High-fidelity Prototype**](https://github.com/mjuric05/HCL-2024-2025/blob/main/assignments/Low-High%20Fidelity%20Prototype/High-fidelity%20Prototype.pdf)
+
 
 ## Project Requirements
 
