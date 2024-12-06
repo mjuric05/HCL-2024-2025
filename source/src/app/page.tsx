@@ -39,7 +39,7 @@ export default function Home() {
           </div>
 
           {/* Image (aligned to the right of the parent div) */}
-          <div className="w-1/2 flex justify-center items-center ml-auto">
+          <div className="w-1/2 flex justify-end items-center ml-auto ">
             <Image
               src={HQImage} // Use the imported image here
               alt="Car Rental"
