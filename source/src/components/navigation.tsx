@@ -58,14 +58,25 @@ function processPage(page: Page, index: number, pathname: string) {
 export function Navigation() {
     const pathname = usePathname();
     return (
-        <div className="flex justify-between items-center w-full px-4 pt-4">
-            <h1 className="text-6xl font-bold pl-8">
-                <span className="text-[#2A00B3]">Easy</span>
-                <span className="text-[#9747FF]">Rent</span>
-            </h1>
-            <ul className="flex justify-end space-x-4 pr-8">
-                {pages.map((page, index) => processPage(page, index, pathname))}
-            </ul>
+        <div>
+            <div className="flex justify-between items-center w-full px-4 pt-4">
+                <h1 className="text-6xl font-bold pl-8">
+                    <span className="text-[#2A00B3]">Easy</span>
+                    <span className="text-[#9747FF]">Rent</span>
+                </h1>
+                <ul className="flex justify-end space-x-4 pr-8">
+                    {pages.map((page, index) => processPage(page, index, pathname))}
+                </ul>
+            </div>
+            <div className="w-full mt-5">
+                <div
+                    style={{
+                        background: 'linear-gradient(to right, #2A00B3, #9747FF)',  // Gradient from left to right
+                        height: '4px',  // The thickness of the line
+                        width: '100%',   // Full width
+                    }}
+                />
+            </div>
         </div>
     );
 }
