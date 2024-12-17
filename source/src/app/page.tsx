@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 import Image from 'next/image';
 import HQImage from '../images/HQ.png'; // Import the main image
