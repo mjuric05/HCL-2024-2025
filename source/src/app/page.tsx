@@ -26,7 +26,7 @@ export default function Home() {
               Looking For Simple, Easy And Fast rental? Look No Further...
             </h2>
             <p className="font-inter text-xl max-w-[640px] mb-4 mt-4">
-              Your journey starts here! At Easy Rent, we make renting a car simple, fast, and affordable. Whether you're planning a weekend getaway, a family road trip, or a business meeting, we have the perfect car for you.
+              Your journey starts here! At Easy Rent, we make renting a car simple, fast, and affordable. Whether you are planning a weekend getaway, a family road trip, or a business meeting, we have the perfect car for you.
             </p>
             <button className="bg-[#FF4500] text-white px-6 py-3 rounded-lg hover:bg-[#FF0000] transition duration-500 mt-4 w-1/2 self-center" style={{ height: '55px' }}>
               Book Now
