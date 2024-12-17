@@ -3,8 +3,14 @@
 import { useEffect, useState } from 'react';
 import { fetchData } from '@/utils/fetchData';
 
+interface Post {
+    id: number;
+    title: string;
+    body: string;
+}
+
 export default function CarCategoriesPage() {
-    const [data, setData] = useState([]);
+    const [data, setData] = useState<Post[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const postsPerPage = 20;
 
