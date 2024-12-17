@@ -16,7 +16,9 @@ export default function CarCategoriesPage() {
 
     useEffect(() => {
         window.scrollTo(0, 0);
-        fetchData().then(fetchedData => setData(fetchedData));
+        fetchData()
+            .then(fetchedData => setData(fetchedData))
+            .catch(error => console.error('Error fetching data:', error));
     }, []);
 
     const indexOfLastPost = currentPage * postsPerPage;
