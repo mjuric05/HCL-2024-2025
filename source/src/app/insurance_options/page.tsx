@@ -1,6 +1,6 @@
 "use client";
 
-import ScrollToTopOnLoad from "@/components/ScrollToTopOnLoad";
+import ScrollToTopOnLoad from '../../components/ScrollToTopOnLoad';
 
 export default function InsurancePage() {
     return (
