@@ -1,3 +1,7 @@
+"use client";
+
+import { usePathname, useRouter } from "next/navigation";
+
 import Image from 'next/image';
 import HQImage from '../images/HQ.png'; // Import the main image
 import Car1Image from '../images/Car 1.jpg'; // Import the first car image
@@ -16,6 +20,23 @@ const titleh2ClassName = "text-[#9747FF] text-3xl font-semibold";
 const titleh3ClassName = "text-[#9747FF] text-2xl font-semibold";
 
 export default function Home() {
+
+  const bookingRouter = useRouter();
+  const carCategoriesRouter = useRouter();
+  const insuranceRouter = useRouter();
+
+  const handleBookingClick = () => {
+    bookingRouter.push('/booking');
+  };
+
+  const handleCarCategoriesClick = () => {
+    carCategoriesRouter.push('/car_categories');
+  };
+
+  const handleInsuranceClick = () => {
+    insuranceRouter.push('/insurance_options');
+  };
+
   return (
     <main className="flex min-h-screen p-10 flex-col items-center justify-center">
       {/* Title Section */}
@@ -28,7 +49,7 @@ export default function Home() {
             <p className="font-inter text-xl max-w-[640px] mb-4 mt-4">
               Your journey starts here! At Easy Rent, we make renting a car simple, fast, and affordable. Whether you are planning a weekend getaway, a family road trip, or a business meeting, we have the perfect car for you.
             </p>
-            <button className="bg-[#FF4500] text-white px-6 py-3 rounded-lg hover:bg-[#FF0000] transition duration-500 mt-4 w-1/2 self-center" style={{ height: '55px' }}>
+            <button className="bg-[#FF4500] text-white px-6 py-3 rounded-lg hover:bg-[#FF0000] transition duration-500 mt-4 w-1/2 self-center" style={{ height: '55px' }} onClick={handleBookingClick}>
               Book Now
             </button>
 
@@ -89,7 +110,7 @@ export default function Home() {
         </div>
 
         <div className="flex justify-center mt-8">
-          <button className="bg-[#9747FF] text-white px-6 py-3 rounded-lg hover:bg-[#7a33cc] transition duration-300 mt-4">
+          <button className="bg-[#9747FF] text-white px-6 py-3 rounded-lg hover:bg-[#7a33cc] transition duration-300 mt-4" onClick={handleCarCategoriesClick}>
             Browse the Cars
           </button>
         </div>
@@ -133,7 +154,7 @@ export default function Home() {
           </div>
 
           <div className="flex justify-center mt-8">
-            <button className="bg-[#9747FF] text-white px-6 py-3 rounded-lg hover:bg-[#7a33cc] transition duration-300">
+            <button className="bg-[#9747FF] text-white px-6 py-3 rounded-lg hover:bg-[#7a33cc] transition duration-300" onClick={handleInsuranceClick}>
               Check Insurance
             </button>
           </div>
@@ -276,7 +297,6 @@ export default function Home() {
               </p>
             </div>
           </div>
-
           {/* For some reason we need to set image size like this, otherwise it is taking properties from layout.css */}
           <div className="w-full max-w-screen-lg mx-auto mt-8">
             <Image
