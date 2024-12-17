@@ -11,3 +11,5 @@ export function ScrollToTopOnLoad() {
 }
 
 export default ScrollToTopOnLoad;
+
+/*Unused component, problems with impoet for some reason*/
