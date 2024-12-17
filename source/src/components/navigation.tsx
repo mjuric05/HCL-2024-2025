@@ -23,10 +23,6 @@ const pages: Page[] = [
         path: "/insurance_options",
     },
     {
-        title: "Vehlices",
-        path: "/vehlice_availability",
-    },
-    {
         title: "Sign In / Log In",
         path: "/sign_in_and_log_in",
     },
@@ -40,7 +36,7 @@ function processPage(page: Page, index: number, pathname: string) {
                     href={page.path}
                     className={
                         page.title === "Sign In / Log In"
-                            ? "bg-[#9747FF] text-white px-6 py-3 rounded-lg hover:bg-[#FF0000] transition duration-300"
+                            ? "bg-[#9747FF] text-white px-6 py-3 rounded-lg hover:bg-[#ae73fa] transition duration-300"
                             : page.path === "/"
                                 ? pathname === page.path
                                     ? "font-extrabold"
