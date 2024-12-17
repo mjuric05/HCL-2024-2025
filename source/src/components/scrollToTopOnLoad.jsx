@@ -1,11 +1,11 @@
 import { useEffect } from "react";
 
-const ScrollToTopOnLoad = () => {
+export function ScrollToTopOnLoad() {
     useEffect(() => {
-        window.scrollTo(0, 0); // Scroll to the top of the page
+        window.scrollTo(0, 0);
     }, []);
 
     return null;
-};
+}
 
 export default ScrollToTopOnLoad;
