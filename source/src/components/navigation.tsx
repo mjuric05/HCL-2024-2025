@@ -1,7 +1,7 @@
 "use client";
-
-import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
+
 
 type Page = {
     title: string;
@@ -19,11 +19,11 @@ const pages: Page[] = [
         path: "/car_categories",
     },
     {
-        title: "Insurance Options",
+        title: "Insurance",
         path: "/insurance_options",
     },
     {
-        title: "Vehlice Availability",
+        title: "Vehlices",
         path: "/vehlice_availability",
     },
     {
@@ -34,18 +34,20 @@ const pages: Page[] = [
 
 function processPage(page: Page, index: number, pathname: string) {
     return (
-        <div>
-            <li key={index}>
+        <div key={index}>
+            <li>
                 <Link
                     href={page.path}
                     className={
-                        page.path === "/"
-                            ? pathname === page.path
-                                ? "font-extrabold"
-                                : ""
-                            : pathname.startsWith(page.path)
-                                ? "font-extrabold"
-                                : ""
+                        page.title === "Sign In / Log In"
+                            ? "bg-[#9747FF] text-white px-6 py-3 rounded-lg hover:bg-[#FF0000] transition duration-300"
+                            : page.path === "/"
+                                ? pathname === page.path
+                                    ? "font-extrabold"
+                                    : ""
+                                : pathname.startsWith(page.path)
+                                    ? "font-extrabold"
+                                    : ""
                     }
                 >
                     {page.title}
@@ -61,7 +63,7 @@ export function Navigation() {
         <div>
             <div className="flex justify-between items-center w-full px-4 pt-4">
                 <h1 className="text-6xl font-bold pl-8">
-                    <span className="text-[#2A00B3]">Easy</span>
+                    <span className="text-[#FFFFFF]">Easy</span>
                     <span className="text-[#9747FF]">Rent</span>
                 </h1>
                 <ul className="flex justify-end space-x-4 pr-8">
