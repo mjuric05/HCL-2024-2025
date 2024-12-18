@@ -174,7 +174,7 @@ export default function InsurancePage() {
                                 <label className="flex items-center space-x-2">
                                     <input type="checkbox" readOnly className={hiddenCheckboxClass} />
                                     <span className={`${checkboxContainerClass} border-[#ffcccc]`}></span>
-                                    <span>Personal Accident Insurance (optional add-on)</span>
+                                    <span>Personal Accident Insurance</span>
                                 </label>
                             </li>
                         </ul>
