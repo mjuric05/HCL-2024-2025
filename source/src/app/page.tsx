@@ -3,11 +3,11 @@
 import { useRouter } from "next/navigation";
 
 import Image from 'next/image';
-import HQImage from '../images/HQ.png'; // Import the main image
-import Car1Image from '../images/Car 1.jpg'; // Import the first car image
-import Car2Image from '../images/Car 2.jpg'; // Import the second car image
-import Car3Image from '../images/Car 3.jpg'; // Import the third car image
-import StarImage from '../images/star.png'; // Import the star image
+import HQImage from '../images/HQ.png';
+import Car1Image from '../images/Car 1.jpg';
+import Car2Image from '../images/Car 2.jpg';
+import Car3Image from '../images/Car 3.jpg';
+import StarImage from '../images/star.png';
 import Persona1 from '../images/Persona 1.png'
 import Persona2 from '../images/Persona 2.png'
 import Persona3 from '../images/Persona 3.png'
@@ -49,7 +49,7 @@ export default function Home() {
             <p className="font-inter text-xl max-w-[640px] mb-4 mt-4">
               Your journey starts here! At Easy Rent, we make renting a car simple, fast, and affordable. Whether you are planning a weekend getaway, a family road trip, or a business meeting, we have the perfect car for you.
             </p>
-            <button className="bg-[#FF4500] text-white px-6 py-3 rounded-lg hover:bg-[#FF0000] transition duration-500 mt-4 w-1/2 self-center" style={{ height: '55px' }} onClick={handleBookingClick}>
+            <button className="bg-[#FF4500] text-white px-6 py-3 rounded-md hover:bg-[#FF0000] transition duration-500 mt-4 w-1/2 self-center" style={{ height: '55px' }} onClick={handleBookingClick}>
               Book Now
             </button>
 
@@ -110,7 +110,7 @@ export default function Home() {
         </div>
 
         <div className="flex justify-center mt-8">
-          <button className="bg-[#9747FF] text-white px-6 py-3 rounded-lg hover:bg-[#7a33cc] transition duration-300 mt-4" onClick={handleCarCategoriesClick}>
+          <button className="bg-[#9747FF] text-white px-6 py-3 rounded-md hover:bg-[#7a33cc] transition duration-300 mt-4" onClick={handleCarCategoriesClick}>
             Browse the Cars
           </button>
         </div>
@@ -131,21 +131,21 @@ export default function Home() {
           }}
         >
           <div className="flex justify-between space-x-4">
-            <div className="flex-1 bg-white p-4 rounded-lg shadow-md">
+            <div className="flex-1 bg-white p-4 rounded-md shadow-md">
               <h3 className={titleh3ClassName}>Basic Insurance</h3>
               <p className="text-gray-700 text-lg">
                 Covers damages to the rental car in case of an accident, with a higher deductible. Perfect for confident drivers on a budget.
               </p>
             </div>
 
-            <div className="flex-1 bg-white p-4 rounded-lg shadow-md">
+            <div className="flex-1 bg-white p-4 rounded-md shadow-md">
               <h3 className={titleh3ClassName}>Medium Insurance</h3>
               <p className="text-gray-700 text-lg">
                 Includes collision damage waiver and theft protection with a moderate deductible. A balanced option for extra security.
               </p>
             </div>
 
-            <div className="flex-1 bg-white p-4 rounded-lg shadow-md">
+            <div className="flex-1 bg-white p-4 rounded-md shadow-md">
               <h3 className={titleh3ClassName}>Full Insurance</h3>
               <p className="text-gray-700 text-lg">
                 Comprehensive coverage with zero deductible, covering accidents, theft, and third-party damages. Ideal for worry-free travel.
@@ -154,14 +154,14 @@ export default function Home() {
           </div>
 
           <div className="flex justify-center mt-8">
-            <button className="bg-[#9747FF] text-white px-6 py-3 rounded-lg hover:bg-[#7a33cc] transition duration-300" onClick={handleInsuranceClick}>
+            <button className="bg-[#9747FF] text-white px-6 py-3 rounded-md hover:bg-[#7a33cc] transition duration-300" onClick={handleInsuranceClick}>
               Check Insurance
             </button>
           </div>
         </div>
       </div>
 
-      { /* Reviews Section */}
+      {/* Reviews Section */}
       <div className="w-full max-w-screen-lg mx-auto mt-20">
         <div className="mb-4 text-left">
           <h2 className={titleh2ClassName}>
@@ -178,7 +178,7 @@ export default function Home() {
                 alt="Linda M."
                 width={200}
                 height={200}
-                className="rounded-lg object-cover"
+                className="rounded-md object-cover"
               />
               <p className="text-lg mb-2 text-gray-700 text-center">
                 Fast Rental was perfect for my weekend escapes. Affordable, reliable car and excellent service. Highly recommend!
@@ -201,7 +201,7 @@ export default function Home() {
                 alt="Mark H."
                 width={200}
                 height={200}
-                className="rounded-lg object-cover"
+                className="rounded-md object-cover"
               />
               <p className="text-lg mb-2 text-gray-700 text-center">
                 Fast Rental made my trips easy and enjoyable. Friendly customer service and simple booking process. Highly recommend!
@@ -224,7 +224,7 @@ export default function Home() {
                 alt="Chris T."
                 width={200}
                 height={200}
-                className="rounded-lg object-cover"
+                className="rounded-mdobject-cover"
               />
               <p className="text-lg mb-2 text-gray-700 text-center">
                 Fast Rental is a lifesaver for weekend plans! Affordable and great options for younger drivers. Totally recommend!
@@ -312,31 +312,6 @@ export default function Home() {
               }}
             />
           </div>
-        </div>
-      </div>
-      <div className="w-screen mt-20">
-        <div
-          style={{
-            background: 'linear-gradient(to right, #2A00B3, #9747FF)',
-            height: '4px',
-            width: '100%',
-          }}
-        />
-      </div>
-      { /* Title and Copyright Section */}
-      <div className="flex flex-col items-center w-full px-4 pt-4">
-        {/* Title */}
-        <div className='w-full flex justify-start'>
-          <h1 className="text-4xl font-bold text-left">
-            <span className="text-[#FFFFFF]">Easy</span>
-            <span className="text-[#9747FF]">Rent</span>
-          </h1>
-        </div>
-        {/*Horrible way of centering copyright, but I had no clue why it is not centered so I had to to this atrocity*/}
-        <div className="w-full flex justify-center items-end -mt-8">
-          <p className="text-lg text-center">
-            © 2024 Brstilo F., Jurić-Pešić M.
-          </p>
         </div>
       </div>
     </main>

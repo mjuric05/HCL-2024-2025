@@ -1,4 +1,5 @@
 import { Navigation } from "../booking/_components/navigation";
+import { Footer } from "@/components/footer";
 
 export default function ShowcaseLayout({
     children,
@@ -9,6 +10,7 @@ export default function ShowcaseLayout({
         <section className="mt-4">
             <Navigation />
             {children}
+            <Footer />
         </section>
     );
 }

@@ -35,7 +35,7 @@ function processPage(page: Page, index: number, pathname: string) {
                 <Link
                     href={page.path}
                     className={`
-                        block px-3 py-2 rounded-lg transition duration-300
+                        block px-3 py-2 rounded transition duration-300 hover:bg-[#f1f1f1] hover:text-[#9747FF]  
                         ${page.title === "Sign In / Log In" ? "bg-[#9747FF] text-white hover:bg-[#ae73fa]" : ""}
                         ${page.path === "/" ? (pathname === page.path ? "font-extrabold" : "") : (pathname.startsWith(page.path) ? "font-extrabold" : "")}
                     `}
