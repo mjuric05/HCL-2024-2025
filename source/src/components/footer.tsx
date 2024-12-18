@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 
 export function Footer() {
     return (
@@ -14,22 +15,22 @@ export function Footer() {
             <div className="flex flex-col items-center w-full px-4 pt-4">
                 {/* Title */}
                 <div className='w-full flex justify-start pl-10'>
-                    <h1 className="text-4xl font-bold text-left">
-                        <span className="text-[#FFFFFF]">Easy</span>
-                        <span className="text-[#9747FF]">Rent</span>
-                    </h1>
+                    <Link href="/">
+                        <h1 className="text-4xl font-bold text-left">
+                            <span className="text-[#FFFFFF]">Easy</span>
+                            <span className="text-[#9747FF]">Rent</span>
+                        </h1>
+                    </Link>
                 </div>
                 {/* Centering copyright */}
-                <div className="w-full flex justify-center items-end -mt-8">
+                <div className="w-full flex justify-center items-end -mt-12">
                     <p className="text-lg text-center">
                         © 2024 Brstilo F., Jurić-Pešić M.
                     </p>
                 </div>
             </div>
-            {/* Empty div that just alligns footer with navigation */}
-            <div className='h-7'>
-            </div>
+            {/* Transparent div made for padding */}
+            <div className='h-7' />
         </div>
-
     );
 }
