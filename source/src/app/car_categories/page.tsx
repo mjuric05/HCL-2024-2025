@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { fetchData } from '@/utils/fetchData';
-import { Footer } from '@/components/footer';
 
 interface Post {
     id: number;
