@@ -1,5 +1,4 @@
 import { Navigation } from "./_components/navigation";
-import { Footer } from "@/components/footer";
 
 export default function ShowcaseLayout({
     children,
