@@ -10,7 +10,6 @@ export default function ShowcaseLayout({
         <section className="mt-4">
             <Navigation />
             {children}
-            <Footer />
         </section>
     );
 }
