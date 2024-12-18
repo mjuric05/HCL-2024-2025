@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect } from 'react';
-import { useRouter } from "next/navigation";
+import { useRouter } from 'next/navigation';
 
 export default function InsurancePage() {
-    const navigationRouter = useRouter();
+    const router = useRouter();
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -16,7 +16,7 @@ export default function InsurancePage() {
         "w-5 h-5 border-2 border-red-500 peer-checked:border-[#9747FF] peer-checked:bg-[#9747FF] rounded";
 
     const handleChoosePlan = () => {
-        navigationRouter.push('/booking');
+        router.push('/booking');
     };
 
     return (
@@ -25,7 +25,7 @@ export default function InsurancePage() {
             <div className="w-10/12 mt-10">
                 <div className="flex w-full space-x-4">
                     {/* Basic Insurance */}
-                    <div className="flex-1 p-4 border-2 border-[#9747FF] rounded-md text-center">
+                    <div className="flex-1 p-4 border-2 border-[#9747FF] rounded-md text-center hover:transform hover:translate-y-[-5px] hover:shadow-lg transition duration-300">
                         <h2 className="text-2xl font-semibold border-b-2 border-[#9747FF] pb-2">Basic Insurance</h2>
                         <p className="text-xl font-medium mt-2">From 50€</p>
                         <ul className="text-left mt-4 text-lg">
@@ -103,7 +103,7 @@ export default function InsurancePage() {
                     </div>
 
                     {/* Medium Insurance */}
-                    <div className="flex-1 p-4 border-2 border-[#9747FF] rounded-md text-center">
+                    <div className="flex-1 p-4 border-2 border-[#9747FF] rounded-md text-center hover:transform hover:translate-y-[-5px] hover:shadow-lg transition duration-300">
                         <h2 className="text-2xl font-semibold border-b-2 border-[#9747FF] pb-2">Medium Insurance</h2>
                         <p className="text-xl font-medium mt-2">From 70€</p>
                         <ul className="text-left mt-4 text-lg">
@@ -181,7 +181,7 @@ export default function InsurancePage() {
                     </div>
 
                     {/* Full Insurance */}
-                    <div className="flex-1 p-4 border-2 border-[#9747FF] rounded-md text-center">
+                    <div className="flex-1 p-4 border-2 border-[#9747FF] rounded-md text-center hover:transform hover:translate-y-[-5px] hover:shadow-lg transition duration-300">
                         <h2 className="text-2xl font-semibold border-b-2 border-[#9747FF] pb-2">Full Insurance</h2>
                         <p className="text-xl font-medium mt-2">From 100€</p>
                         <ul className="text-left mt-4 text-lg">
@@ -258,7 +258,7 @@ export default function InsurancePage() {
                         </ul>
                     </div>
                 </div>
-                <div className="flex justify-center mt-8">
+                <div className="flex justify-center mt-6">
                     <button onClick={handleChoosePlan} className="bg-[#9747FF] hover:bg-[#7a33cc] text-white py-3 px-6 rounded-md text-xl font-semibold">
                         Choose Your Plan
                     </button>
