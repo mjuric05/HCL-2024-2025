@@ -34,17 +34,11 @@ function processPage(page: Page, index: number, pathname: string) {
             <li>
                 <Link
                     href={page.path}
-                    className={
-                        page.title === "Sign In / Log In"
-                            ? "bg-[#9747FF] text-white px-6 py-3 rounded-lg hover:bg-[#ae73fa] transition duration-300"
-                            : page.path === "/"
-                                ? pathname === page.path
-                                    ? "font-extrabold"
-                                    : ""
-                                : pathname.startsWith(page.path)
-                                    ? "font-extrabold"
-                                    : ""
-                    }
+                    className={`
+                        block px-3 py-2 rounded-lg transition duration-300
+                        ${page.title === "Sign In / Log In" ? "bg-[#9747FF] text-white hover:bg-[#ae73fa]" : ""}
+                        ${page.path === "/" ? (pathname === page.path ? "font-extrabold" : "") : (pathname.startsWith(page.path) ? "font-extrabold" : "")}
+                    `}
                 >
                     {page.title}
                 </Link>
@@ -58,7 +52,7 @@ export function Navigation() {
     return (
         <div>
             <div className="flex justify-between items-center w-full px-4 pt-4">
-                <h1 className="text-6xl font-bold pl-8">
+                <h1 className="text-4xl font-bold pl-8">
                     <span className="text-[#FFFFFF]">Easy</span>
                     <span className="text-[#9747FF]">Rent</span>
                 </h1>

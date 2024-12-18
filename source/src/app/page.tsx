@@ -327,13 +327,13 @@ export default function Home() {
       <div className="flex flex-col items-center w-full px-4 pt-4">
         {/* Title */}
         <div className='w-full flex justify-start'>
-          <h1 className="text-6xl font-bold text-left">
+          <h1 className="text-4xl font-bold text-left">
             <span className="text-[#FFFFFF]">Easy</span>
             <span className="text-[#9747FF]">Rent</span>
           </h1>
         </div>
         {/*Horrible way of centering copyright, but I had no clue why it is not centered so I had to to this atrocity*/}
-        <div className="w-full flex justify-center items-end -mt-9">
+        <div className="w-full flex justify-center items-end -mt-8">
           <p className="text-lg text-center">
             © 2024 Brstilo F., Jurić-Pešić M.
           </p>
