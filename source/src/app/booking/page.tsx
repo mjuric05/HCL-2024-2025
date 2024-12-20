@@ -17,7 +17,6 @@ export default function BookingPage() {
 
     useEffect(() => {
         window.scrollTo(0, 0);
-        // Reset form values on mount
         setCarType('--Car Type--');
         setCarBrand('--Car Brand--');
         setInsurance('--Insurance--');
@@ -28,6 +27,8 @@ export default function BookingPage() {
         setDropoffDate(null);
     }, []);
 
+    // Used to calculate the progress of the form
+    // Stupid implementation, but it works so yeah
     const calculateProgress = () => {
         let progress = 0;
         if (carType !== '--Car Type--') progress += 1;
@@ -56,6 +57,12 @@ export default function BookingPage() {
         return date.getTime() === selectedDate?.getTime() ? 'custom-selected' : '';
     };
 
+    const isPastDate = (date: Date) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return date < today;
+    };
+
     const handleCancel = () => {
         window.location.reload();
     };
@@ -65,8 +72,18 @@ export default function BookingPage() {
 
     return (
         <main className="flex min-h-screen flex-col items-center p-10">
-            <h2 className={titleh2ClassName}>Choose Your Car</h2>
+            <h2 className="text-[#9747FF] text-4xl font-semibold -mt-4 text-center">Book Your Car</h2>
             <div className="w-full max-w-2xl space-y-6">
+                {/* Progress Bar */}
+                <div className="w-full bg-gray-200 rounded-full h-4 mt-10 -mb-5">
+                    <div
+                        className="bg-[#9747FF] h-4 rounded-full transition-all duration-500"
+                        style={{ width: `${progress}%` }}
+                    ></div>
+                </div>
+                <div className="text-white text-center mt-2">
+                    {progress.toFixed(0)}%
+                </div>
                 {/* Car Type Selection */}
                 <div>
                     <label htmlFor="car-type" className="block text-lg font-medium text-white">Car Type</label>
@@ -151,6 +168,15 @@ export default function BookingPage() {
                             dateFormat="yyyy/MM/dd"
                             inline
                             dayClassName={customDayClassName}
+                            renderDayContents={(day, date) => (
+                                <div
+                                    style={{
+                                        color: isPastDate(date) ? '#d3d3d3' : 'inherit',
+                                    }}
+                                >
+                                    {day}
+                                </div>
+                            )}
                         />
                     </div>
                     <div className="flex-1">
@@ -170,19 +196,17 @@ export default function BookingPage() {
                             dateFormat="yyyy/MM/dd"
                             inline
                             dayClassName={customDayClassName}
+                            renderDayContents={(day, date) => (
+                                <div
+                                    style={{
+                                        color: isPastDate(date) ? '#d3d3d3' : 'inherit',
+                                    }}
+                                >
+                                    {day}
+                                </div>
+                            )}
                         />
                     </div>
-                </div>
-
-                {/* Progress Bar */}
-                <div className="w-full bg-gray-200 rounded-full h-4 mt-4">
-                    <div
-                        className="bg-[#9747FF] h-4 rounded-full transition-all duration-500"
-                        style={{ width: `${progress}%` }}
-                    ></div>
-                </div>
-                <div className="text-white text-center mt-2">
-                    {progress.toFixed(0)}%
                 </div>
 
                 {/* Buttons */}
