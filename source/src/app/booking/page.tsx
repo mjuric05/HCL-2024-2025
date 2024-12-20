@@ -13,7 +13,7 @@ export default function BookingPage() {
     const [dropoffTime, setDropoffTime] = useState('');
     const [pickupDate, setPickupDate] = useState<Date | null>(null);
     const [dropoffDate, setDropoffDate] = useState<Date | null>(null);
-    const titleh2ClassName = "text-[#9747FF] text-4xl font-semibold";
+    //const titleh2ClassName = "text-[#9747FF] text-4xl font-semibold";
 
     useEffect(() => {
         window.scrollTo(0, 0);

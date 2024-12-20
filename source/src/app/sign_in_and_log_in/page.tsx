@@ -38,19 +38,19 @@ export default function SignInAndLogInPage() {
             [name]: value
         }));
     };
-
-    interface CreateAccountFields {
-        name: string;
-        surname: string;
-        email: string;
-        password: string;
-    }
-
-    interface LoginFields {
-        email: string;
-        password: string;
-    }
-
+    /*
+        interface CreateAccountFields {
+            name: string;
+            surname: string;
+            email: string;
+            password: string;
+        }
+    
+        interface LoginFields {
+            email: string;
+            password: string;
+        }
+    */
     const isValidEmail = (email: string): boolean => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
