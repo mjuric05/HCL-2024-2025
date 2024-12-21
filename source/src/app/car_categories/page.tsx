@@ -40,6 +40,7 @@ export default async function CarCategoriesPage() {
     }));
 
     const renderCarCard = (car: Car) => (
+
         <div
             key={car.fields.title}
             className="p-4 border-2 border-[#9747FF] rounded-md hover:transform hover:translate-y-[-5px] hover:shadow-lg transition duration-300 mb-4"
