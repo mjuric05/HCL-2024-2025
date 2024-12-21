@@ -14,9 +14,9 @@ export default async function CarCategoriesPage() {
                         <div key={String(car.fields.title)} className="p-4 border-2 border-[#9747FF] rounded-md hover:transform hover:translate-y-[-5px] hover:shadow-lg transition duration-300 mb-4">
                             <h3 className="text-2xl font-semibold border-b-2 border-[#9747FF] pb-2 text-center text-white">{String(car.fields.title)}</h3>
                             <div className="flex flex-col md:flex-row items-center mt-4">
-                                {car.fields.thumbnail && typeof car.fields.thumbnail === 'object' && !Array.isArray(car.fields.thumbnail) && 'fields' in car.fields.thumbnail && car.fields.thumbnail.fields && typeof car.fields.thumbnail.fields === 'object' && 'file' in car.fields.thumbnail.fields && (
+                                {car.fields.thumbnail?.fields?.file?.url && (
                                     <img
-                                        src={(car.fields.thumbnail.fields.file as unknown as { url: string }).url}
+                                        src={car.fields.thumbnail.fields.file.url}
                                         alt={typeof car.fields.title === "string" ? car.fields.title : undefined}
                                         className="w-72 h-72 object-cover rounded-lg mt-4 md:mt-0 md:mr-4"
                                     />
