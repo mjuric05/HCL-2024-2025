@@ -1,6 +1,7 @@
 import { getStaticProps } from "@/dbConnector";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import { Document } from "@contentful/rich-text-types";
+import Image from 'next/image';
 
 export default async function CarCategoriesPage() {
     const result = await getStaticProps();
@@ -15,10 +16,12 @@ export default async function CarCategoriesPage() {
                             <h3 className="text-2xl font-semibold border-b-2 border-[#9747FF] pb-2 text-center text-white">{String(car.fields.title)}</h3>
                             <div className="flex flex-col md:flex-row items-center mt-4">
                                 {car.fields.thumbnail && typeof car.fields.thumbnail === 'object' && !Array.isArray(car.fields.thumbnail) && 'fields' in car.fields.thumbnail && car.fields.thumbnail.fields && typeof car.fields.thumbnail.fields === 'object' && 'file' in car.fields.thumbnail.fields && (
-                                    <img
+                                    <Image
                                         src={(car.fields.thumbnail.fields.file as any)?.url}
-                                        alt={typeof car.fields.title === "string" ? car.fields.title : undefined}
-                                        className="w-72 h-72 object-cover rounded-lg mt-4 md:mt-0 md:mr-4"
+                                        alt={typeof car.fields.title === "string" ? car.fields.title : "Car image"}
+                                        width={288} // 72 * 4
+                                        height={288} // 72 * 4
+                                        className="object-cover rounded-lg mt-4 md:mt-0 md:mr-4"
                                     />
                                 )}
                                 <div className="text-white p-4 rounded-md shadow-md flex-1 bg-transparent mt-4 md:mt-0">
@@ -32,4 +35,4 @@ export default async function CarCategoriesPage() {
             </div>
         </main>
     );
-}   
+}
