@@ -1,6 +1,7 @@
 import { getStaticProps } from "@/dbConnector";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import { Document } from "@contentful/rich-text-types";
+import { Entry, EntryFields } from "contentful";
 
 // Simple type for the car thumbnail
 type Thumbnail = {
@@ -22,20 +23,20 @@ type Car = {
 };
 
 // Type for the getStaticProps result
-type PageProps = {
-    props: {
-        cars: Car[];
-    };
-};
+// type PageProps = {
+//     props: {
+//         cars: Car[];
+//     };
+// };
 
 export default async function CarCategoriesPage() {
     const result = await getStaticProps();
-    const cars: Car[] = result.props.cars.map((entry: any) => ({
+    const cars: Car[] = result.props.cars.map((entry: Entry<any>) => ({
         fields: {
-            title: entry.fields.title,
-            description: entry.fields.description,
-            price: entry.fields.price,
-            thumbnail: entry.fields.thumbnail,
+            title: String(entry.fields.title),
+            description: entry.fields.description as Document,
+            price: Number(entry.fields.price),
+            thumbnail: entry.fields.thumbnail as Thumbnail | undefined,
         },
     }));
 
