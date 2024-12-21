@@ -15,7 +15,7 @@ const pages: Page[] = [
         path: "/booking",
     },
     {
-        title: "Car Categories",
+        title: "Cars",
         path: "/car_categories",
     },
     {
