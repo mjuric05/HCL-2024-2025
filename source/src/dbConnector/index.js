@@ -23,6 +23,7 @@ export async function getStaticProps() {
             },
         };
     }
+    
 }
 
 export default function Cars({ cars = [] }) {
