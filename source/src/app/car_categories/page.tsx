@@ -13,11 +13,13 @@ export default async function CarCategoriesPage() {
                         <div key={String(car.fields.title)} className="p-4 border-2 border-[#9747FF] rounded-md hover:transform hover:translate-y-[-5px] hover:shadow-lg transition duration-300 mb-4">
                             <h3 className="text-2xl font-semibold border-b-2 border-[#9747FF] pb-2 text-center text-white">{String(car.fields.title)}</h3>
                             <div className="flex flex-col md:flex-row items-center mt-4">
-                                <img
-                                    src={car.fields.thumbnail.fields.file.url}
-                                    alt={typeof car.fields.title === "string" ? car.fields.title : undefined}
-                                    className="w-72 h-72 object-cover rounded-lg mt-4 md:mt-0 md:mr-4"
-                                />
+                                {car.fields.thumbnail && typeof car.fields.thumbnail === 'object' && 'fields' in car.fields.thumbnail && (
+                                    <img
+                                        src={car.fields.thumbnail?.fields?.file?.url}
+                                        alt={typeof car.fields.title === "string" ? car.fields.title : undefined}
+                                        className="w-72 h-72 object-cover rounded-lg mt-4 md:mt-0 md:mr-4"
+                                    />
+                                )}
                                 <div className="text-white p-4 rounded-md shadow-md flex-1 bg-transparent mt-4 md:mt-0">
                                     {documentToReactComponents(car.fields.description)}
                                     <p className="text-xl font-medium mt-2">Price: {typeof car.fields.price === "number" ? car.fields.price : ""}€ per Day</p>
@@ -29,4 +31,4 @@ export default async function CarCategoriesPage() {
             </div>
         </main>
     );
-}
+}   
