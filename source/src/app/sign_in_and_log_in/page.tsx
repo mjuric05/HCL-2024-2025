@@ -1,7 +1,5 @@
 "use client";
 
-// filepath: /C:/Users/MijoJurić-Pešić/Desktop/HCL-2024-2025/source/src/app/sign_in_and_log_in/page.tsx
-
 import React, { useState } from "react";
 
 export default function SignInAndLogInPage() {

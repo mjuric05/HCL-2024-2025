@@ -1,82 +1,32 @@
-"use client";
+import { getStaticProps } from "@/dbConnector";
+import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 
-import { useEffect, useState } from 'react';
-import { fetchData } from '@/utils/fetchData';
-
-interface Post {
-    id: number;
-    title: string;
-    body: string;
-}
-
-export default function CarCategoriesPage() {
-    const [data, setData] = useState<Post[]>([]);
-    const [currentPage, setCurrentPage] = useState(1);
-    const postsPerPage = 20;
-
-    useEffect(() => {
-        window.scrollTo(0, 0);
-        fetchData()
-            .then(fetchedData => setData(fetchedData))
-            .catch(error => console.error('Error fetching data:', error));
-    }, []);
-
-    const indexOfLastPost = currentPage * postsPerPage;
-    const indexOfFirstPost = indexOfLastPost - postsPerPage;
-    const currentPosts = data.slice(indexOfFirstPost, indexOfLastPost);
-
-    const nextPage = () => {
-        if (currentPage < Math.ceil(data.length / postsPerPage)) {
-            setCurrentPage(currentPage + 1);
-            window.scrollTo(0, 0);
-        }
-    };
-
-    const prevPage = () => {
-        if (currentPage > 1) {
-            setCurrentPage(currentPage - 1);
-            window.scrollTo(0, 0);
-        }
-    };
+export default async function CarCategoriesPage() {
+    const result = await getStaticProps();
 
     return (
-        <div>
-            <main className="flex min-h-screen flex-col items-center p-10">
-                <h1 className="text-6xl font-extrabold tracking-tight">Car Categories</h1>
-                {data.length > 0 ? (
-                    <div className="mt-8 w-full max-w-screen-lg">
-                        <h2 className="text-2xl font-bold">Fetched Posts:</h2>
-                        <ul className="bg-gray-100 p-4 rounded-lg mt-4">
-                            {currentPosts.map((post, index) => (
-                                <li key={post.id} className="mb-4 p-4 border border-gray-300 rounded-lg bg-white shadow-md">
-                                    <h3 className="text-xl font-semibold text-gray-800">
-                                        {indexOfFirstPost + index + 1}. {post.title}
-                                    </h3>
-                                    <p className="text-gray-700">{post.body}</p>
-                                </li>
-                            ))}
-                        </ul>
-                        <div className="flex justify-between mt-4">
-                            <button
-                                onClick={prevPage}
-                                disabled={currentPage === 1}
-                                className="bg-[#9747FF] text-white px-4 py-2 rounded-lg hover:bg-[#ae73fa] transition duration-300"
-                            >
-                                Previous
-                            </button>
-                            <button
-                                onClick={nextPage}
-                                disabled={currentPage === Math.ceil(data.length / postsPerPage)}
-                                className="bg-[#9747FF] text-white px-4 py-2 rounded-lg hover:bg-[#ae73fa] transition duration-300"
-                            >
-                                Next
-                            </button>
+        <main className="flex min-h-screen flex-col items-center p-10">
+            <h2 className="text-[#9747FF] text-4xl font-semibold -mt-4 text-center">Availabile Cars</h2>
+            <div className="w-10/12 mt-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {result.props.cars.map((car) => (
+                        <div key={String(car.fields.title)} className="p-4 border-2 border-[#9747FF] rounded-md hover:transform hover:translate-y-[-5px] hover:shadow-lg transition duration-300 mb-4">
+                            <h3 className="text-2xl font-semibold border-b-2 border-[#9747FF] pb-2 text-center text-white">{String(car.fields.title)}</h3>
+                            <div className="flex flex-col md:flex-row items-center mt-4">
+                                <img
+                                    src={car.fields.thumbnail.fields.file.url}
+                                    alt={typeof car.fields.title === "string" ? car.fields.title : undefined}
+                                    className="w-72 h-72 object-cover rounded-lg mt-4 md:mt-0 md:mr-4"
+                                />
+                                <div className="text-white p-4 rounded-md shadow-md flex-1 bg-transparent mt-4 md:mt-0">
+                                    {documentToReactComponents(car.fields.description)}
+                                    <p className="text-xl font-medium mt-2">Price: {typeof car.fields.price === "number" ? car.fields.price : ""}€ per Day</p>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                ) : (
-                    <p>Loading...</p>
-                )}
-            </main>
-        </div>
+                    ))}
+                </div>
+            </div>
+        </main>
     );
 }
