@@ -1,7 +1,6 @@
 import { getStaticProps } from "@/dbConnector";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import { Document } from "@contentful/rich-text-types";
-import { Entry } from "contentful";
 
 // Simple type for the car thumbnail
 type Thumbnail = {
