@@ -36,7 +36,7 @@
 
 - [X] The application will be used from a web browser
 - [ ] It will be accessible on devices of different sizes
-- [ ] Users can search/filter products or services
+- [X] Users can search/filter products or services
 - [ ] The application will support user login for showing private content
 - [X] One of the public pages will be a blog containing multiple posts with diverse content (images, videos, code snippets)
 - [X] Part of the application's content will be stored in a remote headless CMS system
