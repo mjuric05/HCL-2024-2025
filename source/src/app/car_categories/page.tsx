@@ -2,7 +2,6 @@ import { getStaticProps } from "@/dbConnector";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import { Document } from "@contentful/rich-text-types";
 
-// Simple type for the car thumbnail
 type Thumbnail = {
     fields: {
         file: {
@@ -11,7 +10,6 @@ type Thumbnail = {
     };
 };
 
-// Type for car data structure
 type Car = {
     fields: {
         title: string;
@@ -20,13 +18,6 @@ type Car = {
         thumbnail?: Thumbnail;
     };
 };
-
-// Type for the getStaticProps result
-// type PageProps = {
-//     props: {
-//         cars: Car[];
-//     };
-// };
 
 export default async function CarCategoriesPage() {
     const result = await getStaticProps();
