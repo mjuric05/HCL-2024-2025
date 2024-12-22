@@ -31,7 +31,6 @@ export default async function CarCategoriesPage() {
     }));
 
     const renderCarCard = (car: Car) => (
-
         <div
             key={car.fields.title}
             className="p-4 border-2 border-[#9747FF] rounded-md hover:transform hover:translate-y-[-5px] hover:shadow-lg transition duration-300 mb-4"
@@ -44,7 +43,7 @@ export default async function CarCategoriesPage() {
                     <img
                         src={car.fields.thumbnail.fields.file.url}
                         alt={car.fields.title}
-                        className="w-72 h-72 object-cover rounded-lg mt-4 md:mt-0 md:mr-4"
+                        className="w-full md:w-72 h-72 object-cover rounded-lg mt-4 md:mt-0 md:mr-4"
                     />
                 )}
                 <div className="text-white p-4 rounded-md shadow-md flex-1 bg-transparent mt-4 md:mt-0">
@@ -56,13 +55,13 @@ export default async function CarCategoriesPage() {
             </div>
         </div>
     );
-    { cars.map(renderCarCard) }
+
     return (
-        <main className="flex min-h-screen flex-col items-center p-10">
-            <h2 className="text-[#9747FF] text-4xl font-semibold -mt-4 text-center">
+        <main className="flex min-h-screen flex-col items-center p-4 md:p-10">
+            <h2 className="text-[#9747FF] text-3xl md:text-4xl font-semibold mt-4 text-center">
                 Available Cars
             </h2>
-            <div className="w-10/12 mt-10">
+            <div className="w-full md:w-10/12 mt-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {cars.map(renderCarCard)}
                 </div>
