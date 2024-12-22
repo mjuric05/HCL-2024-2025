@@ -35,7 +35,7 @@
 ### Web Application Requirements
 
 - [X] The application will be used from a web browser
-- [ ] It will be accessible on devices of different sizes
+- [X] It will be accessible on devices of different sizes
 - [X] Users can search/filter products or services
 - [ ] The application will support user login for showing private content
 - [X] One of the public pages will be a blog containing multiple posts with diverse content (images, videos, code snippets)
