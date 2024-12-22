@@ -18,7 +18,7 @@ export default function SignInAndLogInPage() {
 
     const titleh2ClassName = "text-[#9747FF] text-4xl font-semibold -mt-4 text-center";
     const titleh3ClassName = "text-[#9747FF] text-2xl font-semibold mt-4 text-center";
-    const inputClassName = "mt-2 p-2 border border-[#9747FF] rounded-md w-full text-black";
+    const inputClassName = "mt-2 p-2 border-4 border-[#9747FF] rounded-md w-full text-black placeholder-black";
     const frameClassName = "border-2 border-[#9747FF] rounded-md p-4";
 
     const handleCreateAccountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,6 +82,7 @@ export default function SignInAndLogInPage() {
         <main className="flex min-h-screen flex-col items-center p-10">
             <h2 className={titleh2ClassName}>Join Our Crew</h2>
             <div className="flex justify-between w-3/4 mt-8 space-x-8">
+                {/* Create Account */}
                 <div className={`w-1/2 pr-4 ${frameClassName}`}>
                     <h3 className={titleh3ClassName}>Create Account</h3>
                     <hr className="border-[#9747FF] my-2" style={{ borderWidth: "2px" }} />
@@ -117,7 +118,7 @@ export default function SignInAndLogInPage() {
                         <button
                             type="button"
                             onClick={() => setShowPasswordCreate(!showPasswordCreate)}
-                            className="ml-2 mt-1 p-1 bg-white rounded-lg flex items-center justify-center"
+                            className="ml-2 p-1 bg-white rounded-lg flex items-center justify-center"
                         >
                             {showPasswordCreate ? EyeOpenIcon : EyeClosedIcon}
                         </button>
@@ -126,8 +127,8 @@ export default function SignInAndLogInPage() {
                         <button
                             type="button"
                             className={`p-2 w-1/2 rounded-md text-white ${isCreateAccountDisabled
-                                ? "bg-gray-400 cursor-not-allowed"
-                                : "bg-green-500 hover:bg-green-600"
+                                    ? "bg-gray-400 cursor-not-allowed"
+                                    : "bg-green-500 hover:bg-green-600"
                                 }`}
                             disabled={isCreateAccountDisabled}
                         >
@@ -135,6 +136,8 @@ export default function SignInAndLogInPage() {
                         </button>
                     </div>
                 </div>
+
+                {/* Log In */}
                 <div className={`w-1/2 pl-4 ${frameClassName}`}>
                     <h3 className={titleh3ClassName}>Log In</h3>
                     <hr className="border-[#9747FF] my-2" style={{ borderWidth: "2px" }} />
@@ -165,8 +168,8 @@ export default function SignInAndLogInPage() {
                         <button
                             type="button"
                             className={`p-2 w-1/2 rounded-md text-white ${isLoginDisabled
-                                ? "bg-gray-400 cursor-not-allowed"
-                                : "bg-green-500 hover:bg-green-600"
+                                    ? "bg-gray-400 cursor-not-allowed"
+                                    : "bg-green-500 hover:bg-green-600"
                                 }`}
                             disabled={isLoginDisabled}
                         >
@@ -175,6 +178,8 @@ export default function SignInAndLogInPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Rules */}
             <div className={`w-3/4 mt-8 ${frameClassName}`}>
                 <h3 className={titleh3ClassName}>Rules</h3>
                 <hr className="border-[#9747FF] my-2" style={{ borderWidth: "2px" }} />

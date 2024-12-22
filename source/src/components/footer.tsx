@@ -12,9 +12,9 @@ export function Footer() {
                 }}
             />
             {/* Title and Copyright Section */}
-            <div className="flex flex-col items-center w-full px-4 pt-4">
+            <div className="flex flex-row items-center justify-between w-full px-4 pt-4">
                 {/* Title */}
-                <div className='w-full flex justify-start pl-10'>
+                <div className='w-1/2 flex justify-start pl-10'>
                     <Link href="/">
                         <h1 className="text-4xl font-bold text-left">
                             <span className="text-[#FFFFFF]">Easy</span>
@@ -23,9 +23,9 @@ export function Footer() {
                     </Link>
                 </div>
                 {/* Centering copyright */}
-                <div className="w-full flex justify-center items-end -mt-9">
-                    <p className="text-lg text-center">
-                        © 2024 Brstilo F., Jurić-Pešić M.
+                <div className="w-1/2 flex justify-end items-end pr-10">
+                    <p className="text-lg text-right">
+                        © Brstilo, Jurić-Pešić
                     </p>
                 </div>
             </div>

@@ -9,7 +9,6 @@ export default function InsurancePage() {
 
     useEffect(() => {
         window.scrollTo(0, 0);
-        setSearchTerm("");
     }, []);
 
     const titleh2ClassName = "text-[#9747FF] text-4xl font-semibold -mt-4 text-center";
@@ -18,9 +17,6 @@ export default function InsurancePage() {
     const checkboxContainerClass =
         "w-5 h-5 border-2 border-red-500 peer-checked:border-[#9747FF] peer-checked:bg-[#9747FF] rounded";
 
-    // Highlighting using Regex
-    // NO idea HOW this works
-    // AI help needed here
     const highlightText = (text: string, term: string) => {
         if (!term) return text;
         const regex = new RegExp(`(${term})`, "gi");
@@ -39,9 +35,6 @@ export default function InsurancePage() {
         router.push("/booking");
     };
 
-    // Refactored insrance plans,
-    // This makes searching easier
-    // Pain to make this...
     const plans = [
         {
             title: "Basic Insurance",
@@ -166,7 +159,7 @@ export default function InsurancePage() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search insurance..."
-                    className="border-2 border-[#9747FF] rounded-md p-2 w-72 text-black"
+                    className="border-2 border-[#9747FF] rounded-md p-2 w-72 text-black bg-[#f0f0f0] focus:outline-none focus:ring-2 focus:ring-[#9747FF] shadow-lg transition duration-300 ease-in-out transform hover:scale-105 placeholder-black"
                 />
             </div>
             <div className="w-10/12 mt-4">

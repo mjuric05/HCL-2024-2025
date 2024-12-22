@@ -38,23 +38,22 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen p-10 flex-col items-center justify-center">
+    <main className="flex min-h-screen p-4 md:p-10 flex-col items-center justify-center">
       {/* Title Section */}
       <div className="w-full max-w-screen-lg mx-auto">
-        <div className="flex justify-between items-start w-full">
-          <div className="flex flex-col justify-between w-1/2 text-left">
+        <div className="flex flex-col md:flex-row justify-between items-start w-full">
+          <div className="flex flex-col justify-between w-full md:w-1/2 text-left">
             <h2 className={titleh2ClassName}>
               Looking For Simple, Easy And Fast rental? Look No Further...
             </h2>
-            <p className="font-inter text-xl max-w-[640px] mb-4 mt-8">
+            <p className="font-inter text-lg md:text-xl max-w-[640px] mb-4 mt-8">
               Your journey starts here! At Easy Rent, we make renting a car simple, fast, and affordable. Whether you are planning a weekend getaway, a family road trip, or a business meeting, we have the perfect car for you.
             </p>
-            <button className="bg-[#FF4500] text-white px-6 py-3 rounded-md hover:bg-[#FF0000] transition duration-500 mt-8 w-1/2 self-center" style={{ height: '55px' }} onClick={handleBookingClick}>
+            <button className="bg-[#FF4500] text-white px-6 py-3 rounded-md hover:bg-[#FF0000] transition duration-500 mt-8 w-full md:w-1/2 self-center" style={{ height: '55px' }} onClick={handleBookingClick}>
               Book Now
             </button>
-
           </div>
-          <div className="w-1/2 flex justify-end items-start ml-auto">
+          <div className="w-full md:w-1/2 flex justify-end items-start mt-8 md:mt-0">
             <Image
               src={HQImage}
               alt="Car Rental"
@@ -74,8 +73,8 @@ export default function Home() {
           </h2>
         </div>
 
-        <div className="flex justify-around items-center space-x-4 mt-4 w-full">
-          <div className="w-1/3 h-72 flex justify-center items-center">
+        <div className="flex flex-col md:flex-row justify-around items-center space-y-4 md:space-y-0 md:space-x-4 mt-4 w-full">
+          <div className="w-full md:w-1/3 h-72 flex justify-center items-center">
             <Image
               src={Car1Image}
               alt="Car 1"
@@ -86,7 +85,7 @@ export default function Home() {
             />
           </div>
 
-          <div className="w-1/3 h-72 flex justify-center items-center">
+          <div className="w-full md:w-1/3 h-72 flex justify-center items-center">
             <Image
               src={Car2Image}
               alt="Car 2"
@@ -97,7 +96,7 @@ export default function Home() {
             />
           </div>
 
-          <div className="w-1/3 h-72 flex justify-center items-center">
+          <div className="w-full md:w-1/3 h-72 flex justify-center items-center">
             <Image
               src={Car3Image}
               alt="Car 3"
@@ -130,7 +129,7 @@ export default function Home() {
             backgroundColor: 'rgba(151, 71, 255, 0.29)',
           }}
         >
-          <div className="flex justify-between space-x-4">
+          <div className="flex flex-col md:flex-row justify-between space-y-4 md:space-y-0 md:space-x-4">
             <div className="flex-1 bg-white p-4 rounded-md shadow-md">
               <h3 className={titleh3ClassName}>Basic Insurance</h3>
               <p className="text-gray-700 text-lg">
@@ -169,7 +168,7 @@ export default function Home() {
           </h2>
         </div>
 
-        <div className="flex justify-around space-x-4">
+        <div className="flex flex-col md:flex-row justify-around space-y-4 md:space-y-0 md:space-x-4">
           {/* Review 1 */}
           <div className="bg-white p-6 rounded-lg shadow-md flex-1">
             <div className="flex flex-col items-center space-y-4">
@@ -224,7 +223,7 @@ export default function Home() {
                 alt="Chris T."
                 width={200}
                 height={200}
-                className="rounded-mdobject-cover"
+                className="rounded-md object-cover"
               />
               <p className="text-lg mb-2 text-gray-700 text-center">
                 Fast Rental is a lifesaver for weekend plans! Affordable and great options for younger drivers. Totally recommend!
@@ -249,7 +248,7 @@ export default function Home() {
         </div>
 
         <div className="space-y-6">
-          <div className="flex space-x-6">
+          <div className="flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-6">
             {/* Merged Contact Item 1 and 2 */}
             <div className="flex-1 flex flex-col space-y-6">
               <div className="flex items-center bg-white p-4 rounded-lg shadow-md">
