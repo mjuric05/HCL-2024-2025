@@ -13,7 +13,6 @@ export default function BookingPage() {
     const [dropoffTime, setDropoffTime] = useState('');
     const [pickupDate, setPickupDate] = useState<Date | null>(null);
     const [dropoffDate, setDropoffDate] = useState<Date | null>(null);
-    //const titleh2ClassName = "text-[#9747FF] text-4xl font-semibold";
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -27,8 +26,6 @@ export default function BookingPage() {
         setDropoffDate(null);
     }, []);
 
-    // Used to calculate the progress of the form
-    // Stupid implementation, but it works so yeah
     const calculateProgress = () => {
         let progress = 0;
         if (carType !== '--Car Type--') progress += 1;
@@ -40,12 +37,11 @@ export default function BookingPage() {
         if (pickupDate) progress += 1;
         if (dropoffDate) progress += 1;
 
-        // Check if the dates and times are in order
         if (pickupDate && dropoffDate && pickupTime && dropoffTime) {
             const pickupDateTime = new Date(`${pickupDate.toDateString()} ${pickupTime}`);
             const dropoffDateTime = new Date(`${dropoffDate.toDateString()} ${dropoffTime}`);
             if (pickupDateTime >= dropoffDateTime) {
-                progress -= 1; // Subtract progress if dates and times are not in order
+                progress -= 1;
             }
         }
 
@@ -71,8 +67,8 @@ export default function BookingPage() {
     const isContinueDisabled = progress < 100;
 
     return (
-        <main className="flex min-h-screen flex-col items-center p-10">
-            <h2 className="text-[#9747FF] text-4xl font-semibold -mt-4 text-center">Book Your Car</h2>
+        <main className="flex min-h-screen flex-col items-center p-4 md:p-10">
+            <h2 className="text-[#9747FF] text-3xl md:text-4xl font-semibold mt-4 text-center">Book Your Car</h2>
             <div className="w-full max-w-2xl space-y-6">
                 {/* Progress Bar */}
                 <div className="w-full bg-gray-200 rounded-full h-4 mt-10 -mb-5">
@@ -150,7 +146,7 @@ export default function BookingPage() {
                 </div>
 
                 {/* Time and Date Inputs */}
-                <div className="flex space-x-4">
+                <div className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-4">
                     <div className="flex-1">
                         <label htmlFor="pickup-time" className="block text-lg font-medium text-white">Pick Up Time</label>
                         <input
@@ -210,15 +206,15 @@ export default function BookingPage() {
                 </div>
 
                 {/* Buttons */}
-                <div className="flex justify-between mt-4">
+                <div className="flex justify-between mt-4 space-x-4">
                     <button
-                        className="bg-red-500 text-white py-2 px-4 rounded-md"
+                        className="bg-red-500 text-white py-3 px-6 rounded-md"
                         onClick={handleCancel}
                     >
                         Cancel
                     </button>
                     <button
-                        className={`py-2 px-4 rounded-md ${isContinueDisabled ? 'bg-green-300' : 'bg-green-500 text-white'}`}
+                        className={`py-3 px-6 rounded-md ${isContinueDisabled ? 'bg-green-300' : 'bg-green-500 text-white'}`}
                         disabled={isContinueDisabled}
                     >
                         Continue

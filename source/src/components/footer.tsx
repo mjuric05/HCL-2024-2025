@@ -23,7 +23,7 @@ export function Footer() {
                     </Link>
                 </div>
                 {/* Centering copyright */}
-                <div className="w-1/2 flex justify-end items-end pr-10">
+                <div className="w-1/3 flex justify-end items-end pr-10">
                     <p className="text-lg text-right">
                         © Brstilo, Jurić-Pešić
                     </p>
