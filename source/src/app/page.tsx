@@ -1,26 +1,24 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-
 import Image from 'next/image';
 import HQImage from '../images/HQ.png';
 import Car1Image from '../images/Car 1.jpg';
 import Car2Image from '../images/Car 2.jpg';
 import Car3Image from '../images/Car 3.jpg';
 import StarImage from '../images/star.png';
-import Persona1 from '../images/Persona 1.png'
-import Persona2 from '../images/Persona 2.png'
-import Persona3 from '../images/Persona 3.png'
-import PhoneImage from '../images/phone.jpg'
-import EmailImage from '../images/email.jpg'
-import LocationImage from '../images/location.jpg'
-import GoogleMapsLocationsImage from '../images/Google Maps.png'
+import Persona1 from '../images/Persona 1.png';
+import Persona2 from '../images/Persona 2.png';
+import Persona3 from '../images/Persona 3.png';
+import PhoneImage from '../images/phone.jpg';
+import EmailImage from '../images/email.jpg';
+import LocationImage from '../images/location.jpg';
+import GoogleMapsLocationsImage from '../images/Google Maps.png';
 
-const titleh2ClassName = "text-[#9747FF] text-3xl font-semibold";
+const titleh2ClassName = "text-[#9747FF] text-3xl md:text-4xl font-semibold";
 const titleh3ClassName = "text-[#9747FF] text-2xl font-semibold";
 
 export default function Home() {
-
   const bookingRouter = useRouter();
   const carCategoriesRouter = useRouter();
   const insuranceRouter = useRouter();
@@ -53,7 +51,7 @@ export default function Home() {
               Book Now
             </button>
           </div>
-          <div className="w-full md:w-1/2 flex justify-end items-start mt-8 md:mt-0">
+          <div className="w-full md:w-1/2 flex justify-center md:justify-end items-start mt-8 md:mt-0">
             <Image
               src={HQImage}
               alt="Car Rental"
@@ -74,7 +72,7 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col md:flex-row justify-around items-center space-y-4 md:space-y-0 md:space-x-4 mt-4 w-full">
-          <div className="w-full md:w-1/3 h-72 flex justify-center items-center">
+          <div className="w-4/5 md:w-1/3 h-56 md:h-72 flex justify-center items-center">
             <Image
               src={Car1Image}
               alt="Car 1"
@@ -85,7 +83,7 @@ export default function Home() {
             />
           </div>
 
-          <div className="w-full md:w-1/3 h-72 flex justify-center items-center">
+          <div className="hidden md:flex w-full md:w-1/3 h-56 md:h-72 justify-center items-center">
             <Image
               src={Car2Image}
               alt="Car 2"
@@ -96,7 +94,7 @@ export default function Home() {
             />
           </div>
 
-          <div className="w-full md:w-1/3 h-72 flex justify-center items-center">
+          <div className="hidden md:flex w-full md:w-1/3 h-56 md:h-72 justify-center items-center">
             <Image
               src={Car3Image}
               alt="Car 3"
@@ -108,8 +106,14 @@ export default function Home() {
           </div>
         </div>
 
+        <div className="md:hidden mt-4 text-center">
+          <p className="text-lg">
+            These and many more cars available within minutes.
+          </p>
+        </div>
+
         <div className="flex justify-center mt-8">
-          <button className="bg-[#9747FF] text-white px-6 py-3 rounded-md hover:bg-[#7a33cc] transition duration-300 mt-4" onClick={handleCarCategoriesClick}>
+          <button className="bg-[#9747FF] text-white px-4 py-2 md:px-6 md:py-3 rounded-md hover:bg-[#7a33cc] transition duration-300 mt-4" onClick={handleCarCategoriesClick}>
             Browse the Cars
           </button>
         </div>
@@ -239,6 +243,7 @@ export default function Home() {
           </div>
         </div>
       </div>
+
       {/* Contact Section */}
       <div className="w-full max-w-screen-lg mx-auto mt-20">
         <div className="mb-4 text-left">
