@@ -65,13 +65,36 @@ export default function Home() {
 
       {/* Car Options Section */}
       <div className="w-full max-w-screen-lg mx-auto mt-20">
+        {/* Title */}
         <div className="mb-8 text-left">
           <h2 className={titleh2ClassName}>
             Choose The Car That Suits You The Best...
           </h2>
         </div>
 
-        <div className="flex flex-col md:flex-row justify-around items-center space-y-4 md:space-y-0 md:space-x-4 mt-4 w-full">
+        {/* Mobile Layout */}
+        <div className="block md:hidden">
+          <div className="w-full md:w-1/2 flex justify-center md:justify-end items-start mt-8 md:mt-0">
+            <Image
+              src={Car1Image}
+              alt="Car Rental"
+              width={400}
+              height={400}
+              className="rounded-lg"
+            />
+          </div>
+          <div className="flex justify-center mt-4">
+            <button
+              className="bg-[#9747FF] text-white px-6 py-3 rounded-md hover:bg-[#7a33cc] transition duration-300"
+              onClick={handleCarCategoriesClick}
+            >
+              Browse the Cars
+            </button>
+          </div>
+        </div>
+
+        {/* Desktop Layout */}
+        <div className="hidden md:flex flex-col md:flex-row justify-around items-center space-x-4 mt-4 w-full">
           <div className="w-full md:w-1/3 h-56 md:h-72 flex justify-center items-center relative">
             <Image
               src={Car1Image}
@@ -81,14 +104,8 @@ export default function Home() {
               layout="intrinsic"
               className="rounded-lg w-full h-full object-cover"
             />
-            <div className="absolute bottom-0 left-0 right-0 bg-white bg-opacity-75 p-2 md:hidden">
-              <p className="text-lg text-center">
-                These and many more cars available within minutes.
-              </p>
-            </div>
           </div>
-
-          <div className="hidden md:flex w-full md:w-1/3 h-56 md:h-72 justify-center items-center">
+          <div className="w-full md:w-1/3 h-56 md:h-72 flex justify-center items-center">
             <Image
               src={Car2Image}
               alt="Car 2"
@@ -98,8 +115,7 @@ export default function Home() {
               className="rounded-lg w-full h-full object-cover"
             />
           </div>
-
-          <div className="hidden md:flex w-full md:w-1/3 h-56 md:h-72 justify-center items-center">
+          <div className="w-full md:w-1/3 h-56 md:h-72 flex justify-center items-center">
             <Image
               src={Car3Image}
               alt="Car 3"
@@ -111,12 +127,18 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="flex justify-center mt-8">
-          <button className="bg-[#9747FF] text-white px-4 py-2 md:px-6 md:py-3 rounded-md hover:bg-[#7a33cc] transition duration-300 mt-4" onClick={handleCarCategoriesClick}>
+        {/* Desktop Button */}
+        <div className="hidden md:flex justify-center mt-8">
+          <button
+            className="bg-[#9747FF] text-white px-6 py-3 rounded-md hover:bg-[#7a33cc] transition duration-300"
+            onClick={handleCarCategoriesClick}
+          >
             Browse the Cars
           </button>
         </div>
       </div>
+
+
 
       {/* Insurance Section */}
       <div className="w-full max-w-screen-lg mx-auto mt-20">
