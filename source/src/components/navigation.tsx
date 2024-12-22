@@ -56,12 +56,12 @@ export function Navigation() {
         <div>
             <div className="flex justify-between items-center w-full px-4 pt-4">
                 <Link href="/">
-                    <h1 className="text-4xl font-bold pl-8 cursor-pointer">
+                    <h1 className="text-4xl font-bold pl-4 md:pl-8 cursor-pointer">
                         <span className="text-[#FFFFFF]">Easy</span>
                         <span className="text-[#9747FF]">Rent</span>
                     </h1>
                 </Link>
-                <div className="md:hidden">
+                <div className="md:hidden pr-4">
                     <button
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
                         className="text-white focus:outline-none mt-4"

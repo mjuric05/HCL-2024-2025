@@ -14,7 +14,7 @@ export function Footer() {
             {/* Title and Copyright Section */}
             <div className="flex flex-row items-center justify-between w-full px-4 pt-4">
                 {/* Title */}
-                <div className='w-1/2 flex justify-start pl-10'>
+                <div className='w-1/2 flex justify-start pl-4 md:pl-10'>
                     <Link href="/">
                         <h1 className="text-4xl font-bold text-left">
                             <span className="text-[#FFFFFF]">Easy</span>
@@ -23,7 +23,7 @@ export function Footer() {
                     </Link>
                 </div>
                 {/* Centering copyright */}
-                <div className="w-1/3 flex justify-end items-end pr-10">
+                <div className="w-1/2 flex justify-end items-end pr-4 md:pr-10">
                     <p className="text-lg text-right">
                         © Brstilo, Jurić-Pešić
                     </p>
