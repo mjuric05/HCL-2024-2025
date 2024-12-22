@@ -72,7 +72,7 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col md:flex-row justify-around items-center space-y-4 md:space-y-0 md:space-x-4 mt-4 w-full">
-          <div className="w-4/5 md:w-1/3 h-56 md:h-72 flex justify-center items-center">
+          <div className="w-full md:w-1/3 h-56 md:h-72 flex justify-center items-center relative">
             <Image
               src={Car1Image}
               alt="Car 1"
@@ -81,6 +81,11 @@ export default function Home() {
               layout="intrinsic"
               className="rounded-lg w-full h-full object-cover"
             />
+            <div className="absolute bottom-0 left-0 right-0 bg-white bg-opacity-75 p-2 md:hidden">
+              <p className="text-lg text-center">
+                These and many more cars available within minutes.
+              </p>
+            </div>
           </div>
 
           <div className="hidden md:flex w-full md:w-1/3 h-56 md:h-72 justify-center items-center">
@@ -104,12 +109,6 @@ export default function Home() {
               className="rounded-lg w-full h-full object-cover"
             />
           </div>
-        </div>
-
-        <div className="md:hidden mt-4 text-center">
-          <p className="text-lg">
-            These and many more cars available within minutes.
-          </p>
         </div>
 
         <div className="flex justify-center mt-8">
