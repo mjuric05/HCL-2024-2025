@@ -171,7 +171,7 @@ export default function InsurancePage() {
                         </p>
                     </div>
                 ) : (
-                    <div className="flex flex-col md:flex-row w-full space-y-4 md:space-y-0 md:space-x-4">
+                    <div className="flex flex-col w-full space-y-4">
                         {filteredPlans.map(renderPlanCard)}
                     </div>
                 )}
