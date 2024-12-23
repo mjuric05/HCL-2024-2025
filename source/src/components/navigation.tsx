@@ -64,20 +64,17 @@ export function Navigation() {
                 <div className="md:hidden pr-4">
                     <button
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        className="text-white focus:outline-none mt-4"
+                        className="focus:outline-none mt-4"
                     >
                         <div className="relative w-6 h-6">
                             <span
-                                className={`block absolute h-0.5 w-full bg-current transform transition duration-300 ease-in-out ${isMenuOpen ? 'rotate-45 top-2.5' : 'top-1.5'
-                                    }`}
+                                className={`block absolute h-0.5 w-full bg-current transform transition duration-300 ease-in-out ${isMenuOpen ? 'rotate-45 top-2.5' : 'top-1.5'} dark:bg-white bg-black`}
                             ></span>
                             <span
-                                className={`block absolute h-0.5 w-full bg-current transform transition duration-300 ease-in-out ${isMenuOpen ? 'opacity-0' : 'top-3'
-                                    }`}
+                                className={`block absolute h-0.5 w-full bg-current transform transition duration-300 ease-in-out ${isMenuOpen ? 'opacity-0' : 'top-3'} dark:bg-white bg-black`}
                             ></span>
                             <span
-                                className={`block absolute h-0.5 w-full bg-current transform transition duration-300 ease-in-out ${isMenuOpen ? '-rotate-45 top-2.5' : 'top-4.5'
-                                    }`}
+                                className={`block absolute h-0.5 w-full bg-current transform transition duration-300 ease-in-out ${isMenuOpen ? '-rotate-45 top-2.5' : 'top-4.5'} dark:bg-white bg-black`}
                             ></span>
                         </div>
                     </button>
