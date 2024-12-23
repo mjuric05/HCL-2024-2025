@@ -159,7 +159,7 @@ export default function InsurancePage() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search insurance..."
-                    className="border-2 border-[#9747FF] rounded-md p-2 w-72 text-black bg-[#f0f0f0] focus:outline-none focus:ring-2 focus:ring-[#9747FF] shadow-lg transition duration-300 ease-in-out transform hover:scale-105 placeholder-black"
+                    className="border-2 border-[#9747FF] rounded-md p-2 w-full md:w-72 text-black bg-[#f0f0f0] focus:outline-none focus:ring-2 focus:ring-[#9747FF] shadow-lg transition duration-300 ease-in-out transform hover:scale-105 placeholder-black"
                 />
             </div>
             <div className="w-full md:w-10/12 mt-4">
