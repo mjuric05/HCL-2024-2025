@@ -17,7 +17,7 @@ export function Footer() {
                 <div className='w-1/2 flex justify-start pl-4 md:pl-10'>
                     <Link href="/">
                         <h1 className="text-4xl font-bold text-left">
-                            <span className="text-[#FFFFFF]">Easy</span>
+                            <span className="text-theme-easy">Easy</span>
                             <span className="text-[#9747FF]">Rent</span>
                         </h1>
                     </Link>

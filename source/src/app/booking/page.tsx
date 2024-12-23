@@ -71,21 +71,21 @@ export default function BookingPage() {
             <h2 className="text-[#9747FF] text-3xl md:text-4xl font-semibold mt-4 text-center">Book Your Car</h2>
             <div className="w-full max-w-2xl space-y-6">
                 {/* Progress Bar */}
-                <div className="w-full bg-gray-200 rounded-full h-4 mt-10 -mb-5">
+                <div className="w-full bg-gray-100 rounded-full h-4 mt-10 -mb-5">
                     <div
-                        className="bg-[#9747FF] h-4 rounded-full transition-all duration-500"
+                        className="h-4 rounded-full transition-all duration-500 bg-[#2A00B3] dark:bg-[#D3BFFF]"
                         style={{ width: `${progress}%` }}
                     ></div>
                 </div>
-                <div className="text-white text-center mt-2">
-                    {progress.toFixed(0)}%
+                <div className="text-center mt-2">
+                    <span className="text-black dark:text-white">{progress.toFixed(0)}%</span>
                 </div>
                 {/* Car Type Selection */}
                 <div>
-                    <label htmlFor="car-type" className="block text-lg font-medium text-white">Car Type</label>
+                    <label htmlFor="car-type" className="block text-lg font-medium text-black dark:text-white">Car Type</label>
                     <select
                         id="car-type"
-                        className="mt-1 block w-full p-2 border border-[#9747FF] rounded-md text-black"
+                        className="mt-1 block w-full p-2 border border-[#9747FF] rounded-md text-black dark:text-black"
                         value={carType}
                         onChange={(e) => setCarType(e.target.value)}
                     >
@@ -99,10 +99,10 @@ export default function BookingPage() {
 
                 {/* Car Brand Selection */}
                 <div>
-                    <label htmlFor="car-brand" className="block text-lg font-medium text-white">Car Brand</label>
+                    <label htmlFor="car-brand" className="block text-lg font-medium text-black dark:text-white">Car Brand</label>
                     <select
                         id="car-brand"
-                        className="mt-1 block w-full p-2 border border-[#9747FF] rounded-md text-black"
+                        className="mt-1 block w-full p-2 border border-[#9747FF] rounded-md text-black dark:text-black"
                         value={carBrand}
                         onChange={(e) => setCarBrand(e.target.value)}
                     >
@@ -115,10 +115,10 @@ export default function BookingPage() {
 
                 {/* Insurance Selection */}
                 <div>
-                    <label htmlFor="insurance" className="block text-lg font-medium text-white">Insurance</label>
+                    <label htmlFor="insurance" className="block text-lg font-medium text-black dark:text-white">Insurance</label>
                     <select
                         id="insurance"
-                        className="mt-1 block w-full p-2 border border-[#9747FF] rounded-md text-black"
+                        className="mt-1 block w-full p-2 border border-[#9747FF] rounded-md text-black dark:text-black"
                         value={insurance}
                         onChange={(e) => setInsurance(e.target.value)}
                     >
@@ -131,10 +131,10 @@ export default function BookingPage() {
 
                 {/* Pick Up Location Selection */}
                 <div>
-                    <label htmlFor="pickup-location" className="block text-lg font-medium text-white">Pick Up Location</label>
+                    <label htmlFor="pickup-location" className="block text-lg font-medium text-black dark:text-white">Pick Up Location</label>
                     <select
                         id="pickup-location"
-                        className="mt-1 block w-full p-2 border border-[#9747FF] rounded-md text-black"
+                        className="mt-1 block w-full p-2 border border-[#9747FF] rounded-md text-black dark:text-black"
                         value={pickupLocation}
                         onChange={(e) => setPickupLocation(e.target.value)}
                     >
@@ -148,19 +148,19 @@ export default function BookingPage() {
                 {/* Time and Date Inputs */}
                 <div className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-4">
                     <div className="flex-1">
-                        <label htmlFor="pickup-time" className="block text-lg font-medium text-white">Pick Up Time</label>
+                        <label htmlFor="pickup-time" className="block text-lg font-medium text-black dark:text-white">Pick Up Time</label>
                         <input
                             type="time"
                             id="pickup-time"
-                            className="mt-1 block w-full p-2 border border-[#9747FF] rounded-md text-black"
+                            className="mt-1 block w-full p-2 border border-[#9747FF] rounded-md text-black dark:text-black"
                             value={pickupTime}
                             onChange={(e) => setPickupTime(e.target.value)}
                         />
-                        <label htmlFor="pickup-date" className="block text-lg font-medium text-white mt-4">Pick Up Date</label>
+                        <label htmlFor="pickup-date" className="block text-lg font-medium text-black dark:text-white mt-4">Pick Up Date</label>
                         <DatePicker
                             selected={pickupDate}
                             onChange={(date) => setPickupDate(date)}
-                            className="mt-1 block w-full p-2 border border-[#9747FF] rounded-md text-black"
+                            className="mt-1 block w-full p-2 border border-[#9747FF] rounded-md text-black dark:text-black"
                             dateFormat="yyyy/MM/dd"
                             inline
                             dayClassName={customDayClassName}
@@ -176,19 +176,19 @@ export default function BookingPage() {
                         />
                     </div>
                     <div className="flex-1">
-                        <label htmlFor="dropoff-time" className="block text-lg font-medium text-white">Drop Off Time</label>
+                        <label htmlFor="dropoff-time" className="block text-lg font-medium text-black dark:text-white">Drop Off Time</label>
                         <input
                             type="time"
                             id="dropoff-time"
-                            className="mt-1 block w-full p-2 border border-[#9747FF] rounded-md text-black"
+                            className="mt-1 block w-full p-2 border border-[#9747FF] rounded-md text-black dark:text-black"
                             value={dropoffTime}
                             onChange={(e) => setDropoffTime(e.target.value)}
                         />
-                        <label htmlFor="dropoff-date" className="block text-lg font-medium text-white mt-4">Drop Off Date</label>
+                        <label htmlFor="dropoff-date" className="block text-lg font-medium text-black dark:text-white mt-4">Drop Off Date</label>
                         <DatePicker
                             selected={dropoffDate}
                             onChange={(date) => setDropoffDate(date)}
-                            className="mt-1 block w-full p-2 border border-[#9747FF] rounded-md text-black"
+                            className="mt-1 block w-full p-2 border border-[#9747FF] rounded-md text-black dark:text-black"
                             dateFormat="yyyy/MM/dd"
                             inline
                             dayClassName={customDayClassName}

@@ -57,7 +57,7 @@ export function Navigation() {
             <div className="flex justify-between items-center w-full px-4 pt-4">
                 <Link href="/">
                     <h1 className="text-4xl font-bold pl-4 md:pl-8 cursor-pointer">
-                        <span className="text-[#FFFFFF]">Easy</span>
+                        <span className="text-theme-easy">Easy</span>
                         <span className="text-[#9747FF]">Rent</span>
                     </h1>
                 </Link>

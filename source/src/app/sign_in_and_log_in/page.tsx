@@ -183,7 +183,7 @@ export default function SignInAndLogInPage() {
             <div className={`w-full md:w-3/4 mt-8 ${frameClassName}`}>
                 <h3 className={titleh3ClassName}>Rules</h3>
                 <hr className="border-[#9747FF] my-2" style={{ borderWidth: "2px" }} />
-                <ul className="list-disc list-inside text-white">
+                <ul className="list-disc list-inside text-black dark:text-white">
                     <li>Email has to be in a valid format: example@gmail.com</li>
                     <li>
                         Your password has to be at least 8 characters long, contain at least 1
@@ -195,7 +195,7 @@ export default function SignInAndLogInPage() {
                             href="https://wary-bay-791.notion.site/Easy-Rent-ToS-162708c272668094ad94f550eff684f0?pvs=4"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-[#9747FF]"
+                            className="text-[#2A00B3] dark:text-[#9747FF]"
                         >
                             Terms of Service (ToS)
                         </a>
