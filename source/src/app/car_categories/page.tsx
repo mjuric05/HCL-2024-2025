@@ -62,7 +62,7 @@ export default async function CarCategoriesPage() {
                 Available Cars
             </h2>
             <div className="w-full md:w-10/12 mt-10">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                     {cars.map(renderCarCard)}
                 </div>
             </div>
