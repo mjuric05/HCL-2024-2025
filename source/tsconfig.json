@@ -33,7 +33,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts"
-, "src/app/car_categories/page.tsx"  ],
+, "src/app/car_categories/page.tsx", "src/components/carFetcher.js"  ],
   "exclude": [
     "node_modules"
   ]

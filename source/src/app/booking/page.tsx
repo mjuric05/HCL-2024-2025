@@ -3,6 +3,47 @@
 import { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { getProps } from '@/components/carFetcher';
+import { Document } from "@contentful/rich-text-types";
+
+type Thumbnail = {
+    fields: {
+        file: {
+            url: string;
+        };
+    };
+};
+
+type Car = {
+    fields: {
+        title: string;
+        description: Document;
+        price: number;
+        thumbnail?: Thumbnail;
+    };
+};
+
+
+async function dataFetch() {
+    try {
+        const result = await getProps();
+        const cars: Car[] = result.props.cars.map((entry) => ({
+            fields: {
+                title: String(entry.fields.title),
+                description: entry.fields.description as Document,
+                price: Number(entry.fields.price),
+                thumbnail: entry.fields.thumbnail as Thumbnail | undefined,
+            },
+        }));
+        console.log("Cars are fetched:", cars);
+        return result.props.cars;
+    } catch (error) {
+        console.error("Error fetching cars:", error);
+        return [];
+    }
+
+}
+
 
 export default function BookingPage() {
     const [carType, setCarType] = useState('--Car Type--');
@@ -25,6 +66,20 @@ export default function BookingPage() {
         setPickupDate(null);
         setDropoffDate(null);
     }, []);
+
+
+    // //fetch cars from dataFetch function
+    const cars = dataFetch().finally(() => {
+        console.log("Cars are fetched, finally:", cars);
+    }
+    );
+
+    console.log("Cars are fetched, again:", cars);
+
+    // fetch cars from dataFetch function when promise is resolved
+
+
+
 
     const calculateProgress = () => {
         let progress = 0;

@@ -162,27 +162,16 @@ export default function InsurancePage() {
                     className="border-2 border-[#9747FF] rounded-md p-2 w-full md:w-72 text-black bg-[#f0f0f0] focus:outline-none focus:ring-2 focus:ring-[#9747FF] shadow-lg transition duration-300 ease-in-out transform hover:scale-105 placeholder-black"
                 />
             </div>
-            <div className="w-full md:w-10/12 mt-4">
-                {filteredPlans.length === 0 ? (
-                    <div className="text-center text-white bg-[#222] p-6 rounded-md">
-                        <h3 className="text-2xl mb-2">Oops...</h3>
-                        <p>
-                            Your request is not covered by our insurance, but it will be available soon :(
-                        </p>
-                    </div>
-                ) : (
-                    <div className="flex flex-col w-full space-y-4">
-                        {filteredPlans.map(renderPlanCard)}
-                    </div>
-                )}
-                <div className="flex justify-center mt-6">
-                    <button
-                        onClick={handleChoosePlan}
-                        className="bg-[#9747FF] hover:bg-[#7a33cc] text-white py-3 px-6 rounded-md text-xl font-semibold"
-                    >
-                        Choose Your Plan
-                    </button>
-                </div>
+            <div className="flex flex-col md:flex-row md:space-x-4 w-full">
+                {filteredPlans.map(renderPlanCard)}
+            </div>
+            <div className="flex justify-center mt-6">
+                <button
+                    onClick={handleChoosePlan}
+                    className="bg-[#9747FF] hover:bg-[#7a33cc] text-white py-3 px-6 rounded-md text-xl font-semibold"
+                >
+                    Choose Your Plan
+                </button>
             </div>
         </main>
     );

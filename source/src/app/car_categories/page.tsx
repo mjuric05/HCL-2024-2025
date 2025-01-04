@@ -19,6 +19,8 @@ type Car = {
     };
 };
 
+
+
 export default async function CarCategoriesPage() {
     const result = await getStaticProps();
     const cars: Car[] = result.props.cars.map((entry) => ({
@@ -29,6 +31,7 @@ export default async function CarCategoriesPage() {
             thumbnail: entry.fields.thumbnail as Thumbnail | undefined,
         },
     }));
+    
 
     const renderCarCard = (car: Car) => (
         <div
