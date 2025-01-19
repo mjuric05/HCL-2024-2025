@@ -5,41 +5,55 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { getStaticProps } from "@/components/carFetcher";
 import { Document } from "@contentful/rich-text-types";
+import { Entry, EntrySkeletonType } from "contentful";
 
-async function dataFetch() {
-    try {
-        const result = await getStaticProps();
-        const cars: Car[] = result.props.cars.map((entry: any) => ({
-            fields: {
-                title: String(entry.fields.title),
-                description: entry.fields.description as Document,
-                price: Number(entry.fields.price),
-                thumbnail: entry.fields.thumbnail as Thumbnail | undefined,
-                size: String(entry.fields.size),
-            },
-        }));
-        console.log("Cars are fetched:", cars);
-        return result.props.cars;
-    } catch (error) {
-        console.error("Error fetching cars:", error);
-        return [];
-    }
-
-}
-
-type Thumbnail = {
+interface Thumbnail {
     fields: {
         file: {
             url: string;
         };
     };
-};
+}
+
+interface CarFields extends EntrySkeletonType {
+    fields: {
+        title: string;
+        description: Document;
+        price: number;
+        thumbnail?: Thumbnail;
+        size: string;
+    };
+    contentTypeId: string;
+}
+
+//interface CarEntry extends Entry<CarFields> {}
 
 interface Car {
     fields: {
         title: string;
+        description: Document;
         price: number;
+        thumbnail?: Thumbnail;
         size: string;
+    };
+}
+
+async function dataFetch() {
+    try {
+        const result = await getStaticProps();
+        const cars = result.props.cars.map((entry: Entry<EntrySkeletonType>) => ({
+            fields: {
+                title: String(entry.fields.title || ""),
+                description: entry.fields.description as Document,
+                price: Number(entry.fields.price || 0),
+                thumbnail: entry.fields.thumbnail as Thumbnail | undefined,
+                size: String(entry.fields.size || ""),
+            },
+        }));
+        return cars;
+    } catch (error) {
+        console.error("Error fetching cars:", error);
+        return [];
     }
 }
 

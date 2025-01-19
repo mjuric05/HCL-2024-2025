@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import Image from 'next/image';
-import HQImage from '../images/HQ.png';
 import Car1Image from '../images/Car 1.jpg';
 import Car2Image from '../images/Car 2.jpg';
 import Car3Image from '../images/Car 3.jpg';
