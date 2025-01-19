@@ -165,23 +165,23 @@ export default function Home() {
           }}
         >
           <div className="flex flex-col md:flex-row justify-between space-y-4 md:space-y-0 md:space-x-4">
-            <div className="flex-1 bg-white p-4 rounded-md shadow-md">
-              <h3 className={titleh3ClassName}>Basic Insurance</h3>
-              <p className="text-gray-700 text-lg">
+            <div className="bg-[#9747FF] flex-1 dark:bg-[#1a1a1a] p-4 rounded-md shadow-md">
+              <h3 className={`${titleh3ClassName} text-white dark:text-[#9747FF]`}>Basic Insurance</h3>
+              <p className="text-white-700 text-lg">
                 Covers damages to the rental car in case of an accident, with a higher deductible. Perfect for confident drivers on a budget.
               </p>
             </div>
 
-            <div className="flex-1 bg-white p-4 rounded-md shadow-md">
-              <h3 className={titleh3ClassName}>Medium Insurance</h3>
-              <p className="text-gray-700 text-lg">
+            <div className="bg-[#9747FF] flex-1 dark:bg-[#1a1a1a] p-4 rounded-md shadow-md">
+              <h3 className={`${titleh3ClassName} text-white dark:text-[#9747FF]`}>Medium Insurance</h3>
+              <p className="text-white-700 text-lg">
                 Includes collision damage waiver and theft protection with a moderate deductible. A balanced option for extra security.
               </p>
             </div>
 
-            <div className="flex-1 bg-white p-4 rounded-md shadow-md">
-              <h3 className={titleh3ClassName}>Full Insurance</h3>
-              <p className="text-gray-700 text-lg">
+            <div className="bg-[#9747FF] flex-1 dark:bg-[#1a1a1a] p-4 rounded-md shadow-md">
+              <h3 className={`${titleh3ClassName} text-white dark:text-[#9747FF]`}>Full Insurance</h3>
+              <p className="text-white-700 text-lg">
                 Comprehensive coverage with zero deductible, covering accidents, theft, and third-party damages. Ideal for worry-free travel.
               </p>
             </div>
