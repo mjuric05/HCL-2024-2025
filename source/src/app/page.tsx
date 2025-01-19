@@ -37,7 +37,7 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen p-4 pt-20 md:p-10 md:pt-24 flex-col items-center justify-center">
+    <main className="flex min-h-screen flex-col items-center p-4 pt-24 md:p-10 md:pt-28">
       {/* Title Section */}
       <div className="w-full max-w-screen-lg mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start w-full">
