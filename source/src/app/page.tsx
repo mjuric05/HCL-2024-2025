@@ -19,8 +19,6 @@ const titleh2ClassName = "text-[#9747FF] text-4xl md:text-4xl font-semibold";
 const titleh2Adapted = "text-[#9747FF] text-xl md:text-2xl font-semibold";
 const titleh3ClassName = "text-[#9747FF] text-2xl font-semibold";
 
-
-
 export default function Home() {
   const bookingRouter = useRouter();
   const carCategoriesRouter = useRouter();
@@ -39,7 +37,7 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen p-4 md:p-10 flex-col items-center justify-center">
+    <main className="flex min-h-screen p-4 pt-20 md:p-10 md:pt-24 flex-col items-center justify-center">
       {/* Title Section */}
       <div className="w-full max-w-screen-lg mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start w-full">

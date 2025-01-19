@@ -72,7 +72,7 @@ export function Navigation() {
     }, [isMenuOpen]);
 
     return (
-        <div ref={menuRef}>
+        <div ref={menuRef} className="fixed top-0 left-0 w-full z-50 backdrop-blur-md">
             <div className="flex justify-between items-center w-full px-4 pt-4">
                 <Link href="/">
                     <h1 className="text-4xl font-bold pl-4 md:pl-8 cursor-pointer">

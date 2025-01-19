@@ -65,7 +65,7 @@ export default async function CarCategoriesPage() {
     );
 
     return (
-        <main className="flex min-h-screen flex-col items-center p-4 md:p-10">
+        <main className="flex min-h-screen flex-col items-center p-4 pt-24 md:p-10 md:pt-28">
             <h2 className="text-3xl md:text-4xl font-semibold mt-4 text-center text-[#9747FF]">Available Cars</h2>
             <div className="w-full max-w-screen-lg mx-auto mt-8">
                 <div className="flex flex-col md:flex-row justify-between items-center mb-4 space-y-2 md:space-y-0">

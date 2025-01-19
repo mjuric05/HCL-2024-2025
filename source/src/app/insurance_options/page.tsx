@@ -4,18 +4,11 @@ import { useEffect, useState } from "react";
 import Link from 'next/link';
 
 export default function InsurancePage() {
-    //const router = useRouter();
     const [searchTerm, setSearchTerm] = useState("");
 
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
-
-    // const titleh2ClassName = "text-[#9747FF] text-3xl md:text-4xl font-semibold mt-4 text-center";
-    // const titleh3ClassName = "text-[#9747FF] text-2xl font-semibold mt-4 text-center";
-    // const hiddenCheckboxClass = "peer hidden";
-    // const checkboxContainerClass =
-    //     "w-5 h-5 border-2 border-red-500 peer-checked:border-[#9747FF] peer-checked:bg-[#9747FF] rounded";
 
     const plans = [
         {
@@ -88,15 +81,8 @@ export default function InsurancePage() {
         },
     ];
 
-    // const filteredPlans = plans.filter((plan) => {
-    //     if (!searchTerm) return true;
-    //     return plan.checkedItems.some((item) =>
-    //         item.toLowerCase().includes(searchTerm.toLowerCase())
-    //     );
-    // });
-
     return (
-        <main className="flex min-h-screen flex-col items-center p-4 md:p-10">
+        <main className="flex min-h-screen flex-col items-center p-4 pt-24 md:p-10 md:pt-28">
             <h2 className="text-3xl md:text-4xl font-semibold mt-4 text-center text-[#9747FF]">
                 Choose The Insurance That Suits You Best
             </h2>
