@@ -1,16 +1,12 @@
 import { createClient } from "contentful";
 
-export async function getProps() {
+export async function getStaticProps() {
     try {
 
-
         const client = createClient({
-            accessToken: process.env.CONTENTFUL_ACCESS_KEY,
-            space: process.env.CONTENTFUL_SPACE_ID,
+            space: process.env.CONTENTFUL_SPACE_ID || 'f8dn2cn69vjh',
+            accessToken: process.env.CONTENTFUL_ACCESS_TOKEN || 'nFLmOjmxsXlO9dVCZcKCWfEUCGwFLe--ua9mWFINKsc',
         });
-
-        console.log("Access Token:", process.env.CONTENTFUL_ACCESS_KEY);
-        console.log("Space ID:", process.env.CONTENTFUL_SPACE_ID);
 
         const response = await client.getEntries({ content_type: "car" });
 
@@ -20,7 +16,7 @@ export async function getProps() {
             },
         };
     } catch (error) {
-        console.error("Error fetching data from Contentful:", error);
+        console.error("Error fetching data from Contentful:", error.message);
 
         return {
             props: {
@@ -28,8 +24,8 @@ export async function getProps() {
             },
         };
     }
-
 }
+
 
 export default function Cars({ cars = [] }) {
     return (

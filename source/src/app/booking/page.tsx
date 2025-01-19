@@ -3,36 +3,19 @@
 import { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { getProps } from '@/components/carFetcher';
+import { getStaticProps } from "@/components/carFetcher";
 import { Document } from "@contentful/rich-text-types";
-
-type Thumbnail = {
-    fields: {
-        file: {
-            url: string;
-        };
-    };
-};
-
-type Car = {
-    fields: {
-        title: string;
-        description: Document;
-        price: number;
-        thumbnail?: Thumbnail;
-    };
-};
-
 
 async function dataFetch() {
     try {
-        const result = await getProps();
-        const cars: Car[] = result.props.cars.map((entry) => ({
+        const result = await getStaticProps();
+        const cars: Car[] = result.props.cars.map((entry: any) => ({
             fields: {
                 title: String(entry.fields.title),
                 description: entry.fields.description as Document,
                 price: Number(entry.fields.price),
                 thumbnail: entry.fields.thumbnail as Thumbnail | undefined,
+                size: String(entry.fields.size),
             },
         }));
         console.log("Cars are fetched:", cars);
@@ -44,47 +27,73 @@ async function dataFetch() {
 
 }
 
+type Thumbnail = {
+    fields: {
+        file: {
+            url: string;
+        };
+    };
+};
+
+interface Car {
+    fields: {
+        title: string;
+        price: number;
+        size: string;
+    }
+}
 
 export default function BookingPage() {
     const [carType, setCarType] = useState('--Car Type--');
-    const [carBrand, setCarBrand] = useState('--Car Brand--');
+    const [carBrand, setCarBrand] = useState('--Choose Car Type First--');
     const [insurance, setInsurance] = useState('--Insurance--');
     const [pickupLocation, setPickupLocation] = useState('--Pick Up Location--');
     const [pickupTime, setPickupTime] = useState('');
     const [dropoffTime, setDropoffTime] = useState('');
     const [pickupDate, setPickupDate] = useState<Date | null>(null);
     const [dropoffDate, setDropoffDate] = useState<Date | null>(null);
+    const [cars, setCars] = useState<Car[]>([]);
 
     useEffect(() => {
         window.scrollTo(0, 0);
         setCarType('--Car Type--');
-        setCarBrand('--Car Brand--');
+        setCarBrand('--Choose Car Type First--');
         setInsurance('--Insurance--');
         setPickupLocation('--Pick Up Location--');
         setPickupTime('');
         setDropoffTime('');
         setPickupDate(null);
         setDropoffDate(null);
+        setCars([]);
     }, []);
 
+    const getAvailableCars = async () => {
+        try {
+            const result = await dataFetch();
+            const mappedCars: Car[] = result.map((entry: any) => ({
+                fields: {
+                    title: String(entry.fields.title),
+                    description: entry.fields.description as Document,
+                    price: Number(entry.fields.price),
+                    thumbnail: entry.fields.thumbnail as Thumbnail | undefined,
+                    size: String(entry.fields.size),
+                },
+            }));
+            setCars(mappedCars);
+            console.log("Cars fetched:", mappedCars);
+        } catch (error) {
+            console.log("Error fetching cars:", error);
+        }
+    };
 
-    // //fetch cars from dataFetch function
-    const cars = dataFetch().finally(() => {
-        console.log("Cars are fetched, finally:", cars);
-    }
-    );
-
-    console.log("Cars are fetched, again:", cars);
-
-    // fetch cars from dataFetch function when promise is resolved
-
-
-
+    useEffect(() => {
+        getAvailableCars();
+    }, []);
 
     const calculateProgress = () => {
         let progress = 0;
         if (carType !== '--Car Type--') progress += 1;
-        if (carBrand !== '--Car Brand--') progress += 1;
+        if (carBrand !== '--Choose Car Type First--') progress += 1;
         if (insurance !== '--Insurance--') progress += 1;
         if (pickupLocation !== '--Pick Up Location--') progress += 1;
         if (pickupTime) progress += 1;
@@ -121,6 +130,18 @@ export default function BookingPage() {
     const progress = calculateProgress();
     const isContinueDisabled = progress < 100;
 
+    const carSizes = Array.from(new Set(cars.map((c) => c.fields.size?.toLowerCase()).filter(Boolean))).sort();
+    const filteredCars = cars.filter((c) => c.fields.size && c.fields.size.toLowerCase() === carType.toLowerCase());
+
+    const carBrands = Array.from(
+        new Set(
+            filteredCars.map((car) => ({
+                brand: car.fields.title,
+                price: car.fields.price
+            }))
+        )
+    );
+
     return (
         <main className="flex min-h-screen flex-col items-center p-4 md:p-10">
             <h2 className="text-[#9747FF] text-3xl md:text-4xl font-semibold mt-4 text-center">Book Your Car</h2>
@@ -136,68 +157,106 @@ export default function BookingPage() {
                     <span className="text-black dark:text-white">{progress.toFixed(0)}%</span>
                 </div>
                 {/* Car Type Selection */}
-                <div>
-                    <label htmlFor="car-type" className="block text-lg font-medium text-black dark:text-white">Car Type</label>
-                    <select
-                        id="car-type"
-                        className="mt-1 block w-full p-2 border border-[#9747FF] rounded-md text-black dark:text-black"
-                        value={carType}
-                        onChange={(e) => setCarType(e.target.value)}
-                    >
-                        <option>--Car Type--</option>
-                        <option>Small</option>
-                        <option>Medium</option>
-                        <option>Large</option>
-                        <option>Vans</option>
-                    </select>
+                <div className="flex flex-col">
+                    <div className="flex items-center">
+                        <label htmlFor="car-type" className="block text-lg font-medium text-black dark:text-white">
+                            Car Type
+                        </label>
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <select
+                            id="car-type"
+                            className="mt-1 block w-full p-2 border border-[#9747FF] rounded-md text-black dark:text-black"
+                            value={carType}
+                            onChange={(e) => {
+                                setCarType(e.target.value);
+                                setCarBrand("--Choose Car Type First--");
+                            }}
+                        >
+                            <option>--Car Type--</option>
+                            {["small", "medium", "large"].map((size) => (
+                                <option key={size}>{size.charAt(0).toUpperCase() + size.slice(1)}</option>
+                            ))}
+                        </select>
+                        <span className="ml-2">
+                            {carType === "--Car Type--" ? "❌" : "✔️"}
+                        </span>
+                    </div>
                 </div>
 
                 {/* Car Brand Selection */}
-                <div>
-                    <label htmlFor="car-brand" className="block text-lg font-medium text-black dark:text-white">Car Brand</label>
-                    <select
-                        id="car-brand"
-                        className="mt-1 block w-full p-2 border border-[#9747FF] rounded-md text-black dark:text-black"
-                        value={carBrand}
-                        onChange={(e) => setCarBrand(e.target.value)}
-                    >
-                        <option>--Car Brand--</option>
-                        <option>Audi</option>
-                        <option>Mercedes</option>
-                        <option>VW</option>
-                    </select>
+                <div className="flex flex-col">
+                    <div className="flex items-center">
+                        <label htmlFor="car-brand" className="block text-lg font-medium text-black dark:text-white">
+                            Car Brand
+                        </label>
+                    </div>
+                    {/* Update select component */}
+                    <div className="flex justify-between items-center">
+                        <select
+                            id="car-brand"
+                            className={`mt-1 block w-full p-2 border border-[#A9A9A9] rounded-md text-black dark:text-black ${carType === "--Car Type--" ? 'bg-[#A9A9A9]' : ''}`}
+                            value={carBrand}
+                            onChange={(e) => setCarBrand(e.target.value)}
+                            disabled={carType === "--Car Type--"}
+                        >
+                            <option>--Choose Car Type First--</option>
+                            {carBrands.map((car) => (
+                                <option key={car.brand} value={car.brand}>
+                                    {car.brand} - ${car.price}
+                                </option>
+                            ))}
+                        </select>
+                        <span className="ml-2">
+                            {carType === "--Car Type--" || carBrand === "--Choose Car Type First--" ? "❌" : "✔️"}
+                        </span>
+                    </div>
                 </div>
 
                 {/* Insurance Selection */}
-                <div>
-                    <label htmlFor="insurance" className="block text-lg font-medium text-black dark:text-white">Insurance</label>
-                    <select
-                        id="insurance"
-                        className="mt-1 block w-full p-2 border border-[#9747FF] rounded-md text-black dark:text-black"
-                        value={insurance}
-                        onChange={(e) => setInsurance(e.target.value)}
-                    >
-                        <option>--Insurance--</option>
-                        <option>Basic</option>
-                        <option>Medium</option>
-                        <option>Full</option>
-                    </select>
+                <div className="flex flex-col">
+                    <div className="flex items-center justify-between">
+                        <label htmlFor="insurance" className="block text-lg font-medium text-black dark:text-white">
+                            Insurance
+                        </label>
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <select
+                            id="insurance"
+                            className="mt-1 block w-full p-2 border border-[#9747FF] rounded-md text-black dark:text-black"
+                            value={insurance}
+                            onChange={(e) => setInsurance(e.target.value)}
+                        >
+                            <option>--Insurance--</option>
+                            <option>Basic - $50</option>
+                            <option>Medium - $70</option>
+                            <option>Full - $100</option>
+                        </select>
+                        <span className="ml-2">{insurance !== "--Insurance--" ? "✔️" : "❌"}</span>
+                    </div>
                 </div>
 
                 {/* Pick Up Location Selection */}
-                <div>
-                    <label htmlFor="pickup-location" className="block text-lg font-medium text-black dark:text-white">Pick Up Location</label>
-                    <select
-                        id="pickup-location"
-                        className="mt-1 block w-full p-2 border border-[#9747FF] rounded-md text-black dark:text-black"
-                        value={pickupLocation}
-                        onChange={(e) => setPickupLocation(e.target.value)}
-                    >
-                        <option>--Pick Up Location--</option>
-                        <option>A: Put Trščenice 6, Split</option>
-                        <option>B: Ul. Tomića stine 9, Split</option>
-                        <option>C: Split Airport, Cesta Dr. Franje Tuđmana 1270</option>
-                    </select>
+                <div className="flex flex-col">
+                    <div className="flex items-center justify-between">
+                        <label htmlFor="pickup-location" className="block text-lg font-medium text-black dark:text-white">
+                            Pick Up Location
+                        </label>
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <select
+                            id="pickup-location"
+                            className="mt-1 block w-full p-2 border border-[#9747FF] rounded-md text-black dark:text-black"
+                            value={pickupLocation}
+                            onChange={(e) => setPickupLocation(e.target.value)}
+                        >
+                            <option>--Pick Up Location--</option>
+                            <option>A: Put Trščenice 6, Split</option>
+                            <option>B: Ul. Tomića stine 9, Split</option>
+                            <option>C: Split Airport, Cesta Dr. Franje Tuđmana 1270</option>
+                        </select>
+                        <span className="ml-2">{pickupLocation !== "--Pick Up Location--" ? "✔️" : "❌"}</span>
+                    </div>
                 </div>
 
                 {/* Time and Date Inputs */}
@@ -269,13 +328,13 @@ export default function BookingPage() {
                         Cancel
                     </button>
                     <button
-                        className={`py-3 px-6 rounded-md ${isContinueDisabled ? 'bg-green-300' : 'bg-green-500 text-white'}`}
+                        className={`py-3 px-6 rounded-md ${isContinueDisabled ? 'bg-gray-300' : 'bg-green-500 text-white'}`}
                         disabled={isContinueDisabled}
                     >
                         Continue
                     </button>
                 </div>
             </div>
-        </main>
+        </main >
     );
 }

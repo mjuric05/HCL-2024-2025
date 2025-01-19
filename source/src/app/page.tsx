@@ -14,9 +14,13 @@ import PhoneImage from '../images/phone.jpg';
 import EmailImage from '../images/email.jpg';
 import LocationImage from '../images/location.jpg';
 import GoogleMapsLocationsImage from '../images/Google Maps.png';
+import ThumbnailImage from '../images/rent-car.jpg';
 
-const titleh2ClassName = "text-[#9747FF] text-3xl md:text-4xl font-semibold";
+const titleh2ClassName = "text-[#9747FF] text-4xl md:text-4xl font-semibold";
+const titleh2Adapted = "text-[#9747FF] text-xl md:text-2xl font-semibold";
 const titleh3ClassName = "text-[#9747FF] text-2xl font-semibold";
+
+
 
 export default function Home() {
   const bookingRouter = useRouter();
@@ -47,19 +51,28 @@ export default function Home() {
             <p className="font-inter text-lg md:text-xl max-w-[640px] mb-4 mt-8">
               Your journey starts here! At Easy Rent, we make renting a car simple, fast, and affordable. Whether you are planning a weekend getaway, a family road trip, or a business meeting, we have the perfect car for you.
             </p>
-            <button className="bg-[#FF4500] text-white px-6 py-3 rounded-md hover:bg-[#FF0000] transition duration-500 mt-8 w-full md:w-1/2 self-center" style={{ height: '55px' }} onClick={handleBookingClick}>
-              Book Now
-            </button>
+            <div className="flex justify-center w-full">
+
+            </div>
           </div>
           <div className="w-full md:w-1/2 flex justify-center md:justify-end items-start mt-8 md:mt-0">
             <Image
-              src={HQImage}
+              src={ThumbnailImage}
               alt="Car Rental"
-              width={400}
-              height={400}
+              width={850}
+              height={600}
               className="rounded-lg"
             />
           </div>
+        </div>
+        <div className="flex justify-center mt-8">
+          <button
+            className="bg-[#9747FF] hover:bg-blue-600 dark:bg-[#FF4500] dark:hover:bg-red-600 text-white px-6 py-3 rounded-md transition duration-500"
+            style={{ height: '55px', width: '300px' }}
+            onClick={handleBookingClick}
+          >
+            Book Now
+          </button>
         </div>
       </div>
 
@@ -67,7 +80,7 @@ export default function Home() {
       <div className="w-full max-w-screen-lg mx-auto mt-20">
         {/* Title */}
         <div className="mb-8 text-left">
-          <h2 className={titleh2ClassName}>
+          <h2 className={titleh2Adapted}>
             Choose The Car That Suits You The Best...
           </h2>
         </div>
@@ -143,7 +156,7 @@ export default function Home() {
       {/* Insurance Section */}
       <div className="w-full max-w-screen-lg mx-auto mt-20">
         <div className="mb-4 text-left">
-          <h2 className={titleh2ClassName}>
+          <h2 className={titleh2Adapted}>
             Insure Yourself And The Ones You Love...
           </h2>
         </div>
@@ -188,7 +201,7 @@ export default function Home() {
       {/* Reviews Section */}
       <div className="w-full max-w-screen-lg mx-auto mt-20">
         <div className="mb-4 text-left">
-          <h2 className={titleh2ClassName}>
+          <h2 className={titleh2Adapted}>
             Still Unsure? Read Some Of The Reviews...
           </h2>
         </div>
@@ -268,7 +281,7 @@ export default function Home() {
       {/* Contact Section */}
       <div className="w-full max-w-screen-lg mx-auto mt-20">
         <div className="mb-4 text-left">
-          <h2 className={titleh2ClassName}>
+          <h2 className={titleh2Adapted}>
             How To Contact And Find Us...
           </h2>
         </div>
