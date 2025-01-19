@@ -15,18 +15,17 @@ interface Thumbnail {
     };
 }
 
-interface CarFields extends EntrySkeletonType {
-    fields: {
-        title: string;
-        description: Document;
-        price: number;
-        thumbnail?: Thumbnail;
-        size: string;
-    };
-    contentTypeId: string;
+interface CarFields {
+    title: string;
+    description: Document;
+    price: number;
+    thumbnail?: Thumbnail;
+    size: string;
 }
 
-//interface CarEntry extends Entry<CarFields> {}
+interface ContentfulEntry {
+    fields: CarFields;
+}
 
 interface Car {
     fields: {
@@ -84,12 +83,12 @@ export default function BookingPage() {
     const getAvailableCars = async () => {
         try {
             const result = await dataFetch();
-            const mappedCars: Car[] = result.map((entry: any) => ({
+            const mappedCars: Car[] = result.map((entry: ContentfulEntry) => ({
                 fields: {
                     title: String(entry.fields.title),
                     description: entry.fields.description as Document,
                     price: Number(entry.fields.price),
-                    thumbnail: entry.fields.thumbnail as Thumbnail | undefined,
+                    thumbnail: entry.fields.thumbnail,
                     size: String(entry.fields.size),
                 },
             }));
