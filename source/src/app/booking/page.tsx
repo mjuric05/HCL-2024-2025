@@ -143,7 +143,7 @@ export default function BookingPage() {
     const progress = calculateProgress();
     const isContinueDisabled = progress < 100;
 
-    const carSizes = Array.from(new Set(cars.map((c) => c.fields.size?.toLowerCase()).filter(Boolean))).sort();
+    //const carSizes = Array.from(new Set(cars.map((c) => c.fields.size?.toLowerCase()).filter(Boolean))).sort();
     const filteredCars = cars.filter((c) => c.fields.size && c.fields.size.toLowerCase() === carType.toLowerCase());
 
     const carBrands = Array.from(
