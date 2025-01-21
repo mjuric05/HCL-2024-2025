@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { SpeedInsights } from "@vercel/speed-insights/next"
 import Image from 'next/image';
 import Car1Image from '../images/Car 1.jpg';
 import Car2Image from '../images/Car 2.jpg';
