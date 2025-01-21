@@ -4,18 +4,11 @@ import { useEffect, useState } from "react";
 import Link from 'next/link';
 
 export default function InsurancePage() {
-    //const router = useRouter();
     const [searchTerm, setSearchTerm] = useState("");
 
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
-
-    // const titleh2ClassName = "text-[#9747FF] text-3xl md:text-4xl font-semibold mt-4 text-center";
-    // const titleh3ClassName = "text-[#9747FF] text-2xl font-semibold mt-4 text-center";
-    // const hiddenCheckboxClass = "peer hidden";
-    // const checkboxContainerClass =
-    //     "w-5 h-5 border-2 border-red-500 peer-checked:border-[#9747FF] peer-checked:bg-[#9747FF] rounded";
 
     const plans = [
         {
@@ -88,22 +81,11 @@ export default function InsurancePage() {
         },
     ];
 
-    // const filteredPlans = plans.filter((plan) => {
-    //     if (!searchTerm) return true;
-    //     return plan.checkedItems.some((item) =>
-    //         item.toLowerCase().includes(searchTerm.toLowerCase())
-    //     );
-    // });
-
     return (
-        <main className="flex min-h-screen flex-col items-center p-4 md:p-10">
+        <main className="flex min-h-screen flex-col items-center p-4 pt-24 md:p-10 md:pt-28">
             <h2 className="text-3xl md:text-4xl font-semibold mt-4 text-center text-[#9747FF]">
-                Choose The Insurance That Suits You Best
+                Insurance Options
             </h2>
-            <h3 className="text-2xl md:text-3xl font-semibold mt-2 text-center text-[#9747FF]">
-                You Have Something You MUST Have? Look It Up
-            </h3>
-
             <div className="flex flex-col items-center w-full max-w-md mt-6 mb-4">
                 <div className="w-full md:w-72">
                     <input
@@ -123,7 +105,7 @@ export default function InsurancePage() {
                     )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-75%">
                 {plans.map((plan) => {
                     const isHighlighted = searchTerm ? plan.checkedItems.some(item =>
                         item.toLowerCase().includes(searchTerm.toLowerCase())
@@ -143,7 +125,7 @@ export default function InsurancePage() {
                                     <li key={item}>
                                         <label className="flex items-center space-x-2">
                                             <span
-                                                className={`w-4 h-4 inline-block rounded-full ${plan.checkedItems.includes(item) ? 'bg-[#9747FF]' : 'border-2 border-red-500'}`}
+                                                className={`w-4 h-4 inline-block rounded-full ${plan.checkedItems.includes(item) ? 'bg-[#009900]' : 'border-2 border-red-500'}`}
                                             ></span>
                                             <span className={`text-black dark:text-white ${plan.checkedItems.includes(item) ? 'font-bold' : ''}`}>
                                                 {item}

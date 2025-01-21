@@ -79,7 +79,7 @@ export default function SignInAndLogInPage() {
     );
 
     return (
-        <main className="flex min-h-screen flex-col items-center p-4 md:p-10">
+        <main className="flex min-h-screen flex-col items-center p-4 pt-24 md:p-10 md:pt-28">
             <h2 className={titleh2ClassName}>Join Our Crew</h2>
             <div className="flex flex-col md:flex-row justify-between w-full md:w-3/4 mt-8 space-y-8 md:space-y-0 md:space-x-8">
                 {/* Create Account */}

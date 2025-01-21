@@ -19,8 +19,6 @@ const titleh2ClassName = "text-[#9747FF] text-4xl md:text-4xl font-semibold";
 const titleh2Adapted = "text-[#9747FF] text-xl md:text-2xl font-semibold";
 const titleh3ClassName = "text-[#9747FF] text-2xl font-semibold";
 
-
-
 export default function Home() {
   const bookingRouter = useRouter();
   const carCategoriesRouter = useRouter();
@@ -39,7 +37,7 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen p-4 md:p-10 flex-col items-center justify-center">
+    <main className="flex min-h-screen flex-col items-center p-4 pt-24 md:p-10 md:pt-28">
       {/* Title Section */}
       <div className="w-full max-w-screen-lg mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start w-full">
@@ -167,23 +165,23 @@ export default function Home() {
           }}
         >
           <div className="flex flex-col md:flex-row justify-between space-y-4 md:space-y-0 md:space-x-4">
-            <div className="flex-1 bg-white p-4 rounded-md shadow-md">
-              <h3 className={titleh3ClassName}>Basic Insurance</h3>
-              <p className="text-gray-700 text-lg">
+            <div className="bg-[#9747FF] flex-1 dark:bg-[#1a1a1a] p-4 rounded-md shadow-md">
+              <h3 className={`${titleh3ClassName} text-white dark:text-[#9747FF]`}>Basic Insurance</h3>
+              <p className="text-white-700 text-lg">
                 Covers damages to the rental car in case of an accident, with a higher deductible. Perfect for confident drivers on a budget.
               </p>
             </div>
 
-            <div className="flex-1 bg-white p-4 rounded-md shadow-md">
-              <h3 className={titleh3ClassName}>Medium Insurance</h3>
-              <p className="text-gray-700 text-lg">
+            <div className="bg-[#9747FF] flex-1 dark:bg-[#1a1a1a] p-4 rounded-md shadow-md">
+              <h3 className={`${titleh3ClassName} text-white dark:text-[#9747FF]`}>Medium Insurance</h3>
+              <p className="text-white-700 text-lg">
                 Includes collision damage waiver and theft protection with a moderate deductible. A balanced option for extra security.
               </p>
             </div>
 
-            <div className="flex-1 bg-white p-4 rounded-md shadow-md">
-              <h3 className={titleh3ClassName}>Full Insurance</h3>
-              <p className="text-gray-700 text-lg">
+            <div className="bg-[#9747FF] flex-1 dark:bg-[#1a1a1a] p-4 rounded-md shadow-md">
+              <h3 className={`${titleh3ClassName} text-white dark:text-[#9747FF]`}>Full Insurance</h3>
+              <p className="text-white-700 text-lg">
                 Comprehensive coverage with zero deductible, covering accidents, theft, and third-party damages. Ideal for worry-free travel.
               </p>
             </div>
@@ -205,9 +203,9 @@ export default function Home() {
           </h2>
         </div>
 
-        <div className="flex flex-col md:flex-row justify-around space-y-4 md:space-y-0 md:space-x-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
           {/* Review 1 */}
-          <div className="bg-white p-6 rounded-lg shadow-md flex-1">
+          <div className="bg-white p-6 rounded-lg flex-1 shadow-2xl dark:shadow-md">
             <div className="flex flex-col items-center space-y-4">
               <Image
                 src={Persona1}
@@ -230,7 +228,7 @@ export default function Home() {
           </div>
 
           {/* Review 2 */}
-          <div className="bg-white p-6 rounded-lg shadow-md flex-1">
+          <div className="bg-white p-6 rounded-lg flex-1 shadow-2xl dark:shadow-md">
             <div className="flex flex-col items-center space-y-4">
               <Image
                 src={Persona2}
@@ -253,7 +251,7 @@ export default function Home() {
           </div>
 
           {/* Review 3 */}
-          <div className="bg-white p-6 rounded-lg shadow-md flex-1">
+          <div className="bg-white p-6 rounded-lg flex-1 shadow-2xl dark:shadow-md">
             <div className="flex flex-col items-center space-y-4">
               <Image
                 src={Persona3}
@@ -288,7 +286,7 @@ export default function Home() {
         <div className="space-y-6">
           <div className="flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-6">
             {/* Merged Contact Item 1 and 2 */}
-            <div className="flex-1 flex flex-col space-y-6">
+            <div className="flex-1 flex flex-col space-y-6 shadow-xl">
               <div className="flex items-center bg-white p-4 rounded-lg shadow-md">
                 <Image
                   src={PhoneImage}
@@ -317,7 +315,7 @@ export default function Home() {
             </div>
 
             {/* Contact Item 3 */}
-            <div className="flex-1 flex items-center bg-white p-4 rounded-lg shadow-md">
+            <div className="flex-1 flex items-center bg-white p-4 rounded-lg shadow-xl">
               <Image
                 src={LocationImage}
                 alt="Location Icon"

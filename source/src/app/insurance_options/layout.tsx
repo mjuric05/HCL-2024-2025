@@ -1,3 +1,5 @@
+import { SpeedInsights } from "@vercel/speed-insights/next"
+
 export default function ShowcaseLayout({
     children,
 }: {
@@ -6,6 +8,7 @@ export default function ShowcaseLayout({
     return (
         <section className="mt-4">
             {children}
+            <SpeedInsights />
         </section>
     );
 }

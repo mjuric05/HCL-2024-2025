@@ -23,7 +23,7 @@ const pages: Page[] = [
         path: "/insurance_options",
     },
     {
-        title: "Sign In / Log In",
+        title: "Sign Up / Log In",
         path: "/sign_in_and_log_in",
     },
 ];
@@ -35,7 +35,7 @@ function processPage(page: Page, index: number, pathname: string, closeMenu: () 
                 href={page.path}
                 className={`
                     block px-3 py-2 rounded transition duration-300 hover:bg-[#f1f1f1] hover:text-[#9747FF]  
-                    ${page.title === "Sign In / Log In" ? "bg-[#9747FF] text-white hover:bg-[#ae73fa]" : ""}
+                    ${page.title === "Sign Up / Log In" ? "bg-[#9747FF] text-white hover:bg-[#ae73fa]" : ""}
                     ${page.path === "/" ? (pathname === page.path ? "font-extrabold" : "") : (pathname.startsWith(page.path) ? "font-extrabold" : "")}
                 `}
                 onClick={closeMenu}
@@ -72,7 +72,7 @@ export function Navigation() {
     }, [isMenuOpen]);
 
     return (
-        <div ref={menuRef}>
+        <div ref={menuRef} className="fixed top-0 left-0 w-full z-50 backdrop-blur-md bg-white/75 dark:bg-black/25">
             <div className="flex justify-between items-center w-full px-4 pt-4">
                 <Link href="/">
                     <h1 className="text-4xl font-bold pl-4 md:pl-8 cursor-pointer">

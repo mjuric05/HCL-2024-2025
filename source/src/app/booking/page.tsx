@@ -143,7 +143,6 @@ export default function BookingPage() {
     const progress = calculateProgress();
     const isContinueDisabled = progress < 100;
 
-    //const carSizes = Array.from(new Set(cars.map((c) => c.fields.size?.toLowerCase()).filter(Boolean))).sort();
     const filteredCars = cars.filter((c) => c.fields.size && c.fields.size.toLowerCase() === carType.toLowerCase());
 
     const carBrands = Array.from(
@@ -156,13 +155,13 @@ export default function BookingPage() {
     );
 
     return (
-        <main className="flex min-h-screen flex-col items-center p-4 md:p-10">
+        <main className="flex min-h-screen flex-col items-center p-4 pt-24 md:p-10 md:pt-28">
             <h2 className="text-[#9747FF] text-3xl md:text-4xl font-semibold mt-4 text-center">Book Your Car</h2>
             <div className="w-full max-w-2xl space-y-6">
                 {/* Progress Bar */}
                 <div className="w-full bg-gray-100 rounded-full h-4 mt-10 -mb-5">
                     <div
-                        className="h-4 rounded-full transition-all duration-500 bg-[#2A00B3] dark:bg-[#D3BFFF]"
+                        className="h-4 rounded-full transition-all duration-500 bg-[#9747FF] dark:bg-[#9747FF]"
                         style={{ width: `${progress}%` }}
                     ></div>
                 </div>
