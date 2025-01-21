@@ -41,9 +41,10 @@ export default function CarCategoriesPage() {
                 }
                 const fetchedCars: Car[] = await response.json()
                 setCars(fetchedCars)
-                setDisplayedCars(fetchedCars) // Display original cars immediately
+                setDisplayedCars(fetchedCars) 
                 setIsLoading(false)
-            } catch (err) {
+            } catch (error) {
+                console.error("Error fetching cars:", error);
                 setError("Failed to load cars. Please try again later.")
                 setIsLoading(false)
             }
@@ -56,7 +57,6 @@ export default function CarCategoriesPage() {
     const sortedCars = useMemo(() => {
         let sorted = [...cars]
 
-        // Apply size sort
         if (sizeSort !== "original") {
             sorted.sort((a, b) =>
                 sizeSort === "smallLarge"
@@ -65,21 +65,19 @@ export default function CarCategoriesPage() {
             )
         }
 
-        // Apply price sort
         if (priceSort !== "original") {
             sorted.sort((a, b) =>
                 priceSort === "lowHigh" ? a.fields.price - b.fields.price : b.fields.price - a.fields.price,
             )
         }
 
-        // Filter by search query
         if (searchQuery) {
             const lowerCaseQuery = searchQuery.toLowerCase()
             sorted = sorted.filter((car) => car.fields.title.toLowerCase().includes(lowerCaseQuery))
         }
 
         return sorted
-    }, [cars, priceSort, sizeSort, searchQuery]) // Memoized to avoid redundant calculations
+    }, [cars, priceSort, sizeSort, searchQuery]) 
 
     useEffect(() => {
         setDisplayedCars(sortedCars)
@@ -87,12 +85,12 @@ export default function CarCategoriesPage() {
 
     const handleSizeSortChange = (value: "original" | "smallLarge" | "largeSmall") => {
         setSizeSort(value)
-        setPriceSort("original") // Reset price sort to default
+        setPriceSort("original") 
     }
 
     const handlePriceSortChange = (value: "original" | "lowHigh" | "highLow") => {
         setPriceSort(value)
-        setSizeSort("original") // Reset size sort to default
+        setSizeSort("original") 
     }
 
     const renderCarCard = (car: Car) => (
