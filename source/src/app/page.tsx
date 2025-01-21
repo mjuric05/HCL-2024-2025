@@ -203,9 +203,9 @@ export default function Home() {
           </h2>
         </div>
 
-        <div className="flex flex-col md:flex-row justify-around space-y-4 md:space-y-0 md:space-x-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
           {/* Review 1 */}
-          <div className="bg-white p-6 rounded-lg shadow-md flex-1">
+          <div className="bg-white p-6 rounded-lg flex-1 shadow-2xl dark:shadow-md">
             <div className="flex flex-col items-center space-y-4">
               <Image
                 src={Persona1}
@@ -228,7 +228,7 @@ export default function Home() {
           </div>
 
           {/* Review 2 */}
-          <div className="bg-white p-6 rounded-lg shadow-md flex-1">
+          <div className="bg-white p-6 rounded-lg flex-1 shadow-2xl dark:shadow-md">
             <div className="flex flex-col items-center space-y-4">
               <Image
                 src={Persona2}
@@ -251,7 +251,7 @@ export default function Home() {
           </div>
 
           {/* Review 3 */}
-          <div className="bg-white p-6 rounded-lg shadow-md flex-1">
+          <div className="bg-white p-6 rounded-lg flex-1 shadow-2xl dark:shadow-md">
             <div className="flex flex-col items-center space-y-4">
               <Image
                 src={Persona3}
@@ -286,7 +286,7 @@ export default function Home() {
         <div className="space-y-6">
           <div className="flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-6">
             {/* Merged Contact Item 1 and 2 */}
-            <div className="flex-1 flex flex-col space-y-6">
+            <div className="flex-1 flex flex-col space-y-6 shadow-xl">
               <div className="flex items-center bg-white p-4 rounded-lg shadow-md">
                 <Image
                   src={PhoneImage}
@@ -315,7 +315,7 @@ export default function Home() {
             </div>
 
             {/* Contact Item 3 */}
-            <div className="flex-1 flex items-center bg-white p-4 rounded-lg shadow-md">
+            <div className="flex-1 flex items-center bg-white p-4 rounded-lg shadow-xl">
               <Image
                 src={LocationImage}
                 alt="Location Icon"

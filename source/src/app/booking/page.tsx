@@ -161,7 +161,7 @@ export default function BookingPage() {
                 {/* Progress Bar */}
                 <div className="w-full bg-gray-100 rounded-full h-4 mt-10 -mb-5">
                     <div
-                        className="h-4 rounded-full transition-all duration-500 bg-[#2A00B3] dark:bg-[#D3BFFF]"
+                        className="h-4 rounded-full transition-all duration-500 bg-[#9747FF] dark:bg-[#9747FF]"
                         style={{ width: `${progress}%` }}
                     ></div>
                 </div>
