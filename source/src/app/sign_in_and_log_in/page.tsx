@@ -23,7 +23,6 @@ export default function SignInAndLogInPage() {
         lastName: true
     });
 
-    const titleh2ClassName = "text-[#9747FF] text-3xl md:text-4xl font-semibold mt-4 text-center";
     const titleh3ClassName = "text-[#9747FF] text-2xl font-semibold mt-4 text-center";
     const inputClassName = "mt-2 p-2 border-4 rounded-md w-full text-black placeholder-black";
     const frameClassName = "border-2 border-[#9747FF] rounded-md p-4";
@@ -141,7 +140,7 @@ export default function SignInAndLogInPage() {
                         </div>
                         <div className="flex justify-center mt-4">
                             <span className="text-black dark:text-white"></span>
-                            Don't have an account?{" "}
+                            {"Don't have an account? "}
                             <button
                                 type="button"
                                 className="text-[#2A00B3] dark:text-[#9747FF] ml-1"
