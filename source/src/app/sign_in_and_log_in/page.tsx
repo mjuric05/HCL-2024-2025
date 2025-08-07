@@ -11,7 +11,8 @@ export default function SignInAndLogInPage() {
         name: "",
         surname: "",
         email: "",
-        password: ""
+        password: "",
+        confirmPassword: ""
     });
     const [loginFields, setLoginFields] = useState({
         email: "",
@@ -21,14 +22,17 @@ export default function SignInAndLogInPage() {
     const [validateInputs, setValidateInputs] = useState({
         email: true,
         password: true,
+        confirmPassword: true,
         firstName: true,
         lastName: true
     });
     const [loading, setLoading] = useState(false);
+    const [resendLoading, setResendLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+    const [resendEmail, setResendEmail] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
 
-    const { signIn, signUp } = useAuth();
+    const { signIn, signUp, resendConfirmation } = useAuth();
     const router = useRouter();
 
     const titleh3ClassName = "text-[#9747FF] text-2xl font-semibold mt-4 text-center";
@@ -59,15 +63,43 @@ export default function SignInAndLogInPage() {
     };
 
     const isValidPassword = (password: string) => {
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d])[A-Za-z\d\S]{8,}$/;
-        return passwordRegex.test(password);
+        return password.length >= 8;
+    };
+
+    const getPasswordStrength = (password: string) => {
+        if (password.length === 0) return { strength: 0, label: "", color: "" };
+        
+        let score = 0;
+        const checks = {
+            length: password.length >= 8,
+            lowercase: /[a-z]/.test(password),
+            uppercase: /[A-Z]/.test(password),
+            numbers: /\d/.test(password),
+            special: /[^A-Za-z0-9]/.test(password)
+        };
+        
+        // Base score for length
+        if (checks.length) score += 2;
+        if (checks.lowercase) score += 1;
+        if (checks.uppercase) score += 1;
+        if (checks.numbers) score += 1;
+        if (checks.special) score += 1;
+        
+        if (score <= 2) return { strength: 1, label: "Weak", color: "bg-red-500" };
+        if (score <= 4) return { strength: 2, label: "Medium", color: "bg-yellow-500" };
+        return { strength: 3, label: "Strong", color: "bg-green-500" };
+    };
+
+    const passwordsMatch = () => {
+        return createAccountFields.password === createAccountFields.confirmPassword;
     };
 
     const isCreateAccountDisabled =
         !createAccountFields.name ||
         !createAccountFields.surname ||
         !isValidEmail(createAccountFields.email) ||
-        !isValidPassword(createAccountFields.password);
+        !isValidPassword(createAccountFields.password) ||
+        !passwordsMatch();
 
     const isLoginDisabled = !isValidEmail(loginFields.email) || !loginFields.password;
 
@@ -104,10 +136,31 @@ export default function SignInAndLogInPage() {
         if (error) {
             setErrorMessage(error.message);
         } else {
-            setSuccessMessage("Account created successfully! Please check your email to verify your account.");
+            setSuccessMessage("Account created successfully! Please check your email and click the confirmation link to verify your account.");
         }
         
         setLoading(false);
+    };
+
+    const handleResendConfirmation = async () => {
+        if (!resendEmail || !isValidEmail(resendEmail)) {
+            setErrorMessage("Please enter a valid email address");
+            return;
+        }
+
+        setResendLoading(true);
+        setErrorMessage("");
+        
+        const { error } = await resendConfirmation(resendEmail);
+        
+        if (error) {
+            setErrorMessage(error.message);
+        } else {
+            setSuccessMessage("Confirmation email sent! Please check your inbox.");
+            setResendEmail("");
+        }
+        
+        setResendLoading(false);
     };
 
     const EyeClosedIcon = (
@@ -183,6 +236,7 @@ export default function SignInAndLogInPage() {
                                 onMouseUp={() => setShowPasswordLogin(false)}
                                 onMouseLeave={() => setShowPasswordLogin(false)}
                                 className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 flex items-center justify-center"
+                                style={{ top: 'calc(50% + 1px)' }}
                             >
                                 {showPasswordLogin ? EyeOpenIcon : EyeClosedIcon}
                             </button>
@@ -266,30 +320,65 @@ export default function SignInAndLogInPage() {
                             {!validateInputs.email && (
                                 <p className="text-red-500 text-sm">Email address needs to be of a valid format: user@domain.com</p>
                             )}
-                            <div className="flex items-center mt-2">
+                            <div className="relative mt-2">
                                 <input
                                     type={showPasswordCreate ? "text" : "password"}
                                     name="password"
                                     placeholder="Password"
-                                    className={`${inputClassName} ${validateInputs.password ? borderNormal : borderError}`}
+                                    className={`${inputClassName} ${validateInputs.password ? borderNormal : borderError} pr-12`}
                                     onChange={(e) => {
                                         handleCreateAccountChange(e);
                                         setValidateInputs((prev) => ({
                                             ...prev,
-                                            password: isValidPassword(e.target.value)
+                                            password: isValidPassword(e.target.value),
+                                            confirmPassword: createAccountFields.confirmPassword === e.target.value
                                         }));
                                     }}
                                 />
                                 <button
                                     type="button"
-                                    onClick={() => setShowPasswordCreate(!showPasswordCreate)}
-                                    className="ml-2 p-1 bg-white rounded-lg flex items-center justify-center"
+                                    onMouseDown={() => setShowPasswordCreate(true)}
+                                    onMouseUp={() => setShowPasswordCreate(false)}
+                                    onMouseLeave={() => setShowPasswordCreate(false)}
+                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 flex items-center justify-center"
+                                    style={{ top: 'calc(50% + 1px)' }}
                                 >
                                     {showPasswordCreate ? EyeOpenIcon : EyeClosedIcon}
                                 </button>
                             </div>
                             {!validateInputs.password && (
-                                <p className="text-red-500 text-sm">Password must be at least 8 characters long, contain an uppercase letter, a lowercase letter, a number, and a special character.</p>
+                                <p className="text-red-500 text-sm">Password must be at least 8 characters long.</p>
+                            )}
+                            {createAccountFields.password && (
+                                <div className="mt-2">
+                                    <div className="flex items-center space-x-2">
+                                        <div className="flex-1 bg-gray-200 rounded-full h-2">
+                                            <div 
+                                                className={`h-2 rounded-full transition-all duration-300 ${getPasswordStrength(createAccountFields.password).color}`}
+                                                style={{ width: `${(getPasswordStrength(createAccountFields.password).strength / 3) * 100}%` }}
+                                            ></div>
+                                        </div>
+                                        <span className={`text-sm font-medium ${getPasswordStrength(createAccountFields.password).strength === 1 ? 'text-red-500' : getPasswordStrength(createAccountFields.password).strength === 2 ? 'text-yellow-500' : 'text-green-500'}`}>
+                                            {getPasswordStrength(createAccountFields.password).label}
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
+                            <input
+                                type={showPasswordCreate ? "text" : "password"}
+                                name="confirmPassword"
+                                placeholder="Confirm Password"
+                                className={`${inputClassName} ${validateInputs.confirmPassword ? borderNormal : borderError}`}
+                                onChange={(e) => {
+                                    handleCreateAccountChange(e);
+                                    setValidateInputs((prev) => ({
+                                        ...prev,
+                                        confirmPassword: createAccountFields.password === e.target.value
+                                    }));
+                                }}
+                            />
+                            {!validateInputs.confirmPassword && createAccountFields.confirmPassword && (
+                                <p className="text-red-500 text-sm">Passwords do not match.</p>
                             )}
                             <div className="flex justify-center mt-4">
                                 <button
@@ -329,6 +418,36 @@ export default function SignInAndLogInPage() {
                         </div>
                     </div>
                 )}
+            </div>
+            
+            {/* Resend Confirmation Section */}
+            <div className={`w-full md:w-3/4 max-w-lg mt-8 ${frameClassName}`}>
+                <h3 className={titleh3ClassName}>Resend Email Confirmation</h3>
+                <hr className="border-[#9747FF] my-2" style={{ borderWidth: "2px" }} />
+                <p className="text-sm text-gray-600 mb-4 text-center">
+                    Didn&apos;t receive a confirmation email? Enter your email address to resend it.
+                </p>
+                <input
+                    type="email"
+                    placeholder="Enter your email address"
+                    value={resendEmail}
+                    className={inputClassName}
+                    onChange={(e) => setResendEmail(e.target.value)}
+                />
+                <div className="flex justify-center mt-4">
+                    <button
+                        type="button"
+                        className={`p-2 w-1/2 rounded-md text-white ${
+                            !resendEmail || !isValidEmail(resendEmail) || resendLoading
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-blue-500 hover:bg-blue-600"
+                        }`}
+                        disabled={!resendEmail || !isValidEmail(resendEmail) || resendLoading}
+                        onClick={handleResendConfirmation}
+                    >
+                        {resendLoading ? "Sending..." : "Resend Confirmation"}
+                    </button>
+                </div>
             </div>
         </main>
     );

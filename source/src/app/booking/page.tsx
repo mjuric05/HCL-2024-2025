@@ -3,55 +3,28 @@
 import { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { getStaticProps } from "@/components/carFetcher";
-import { Document } from "@contentful/rich-text-types";
-import { Entry, EntrySkeletonType } from "contentful";
 import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
 
-interface Thumbnail {
-    fields: {
-        file: {
-            url: string;
-        };
-    };
-}
-
-interface CarFields {
-    title: string;
-    description: Document;
-    price: number;
-    thumbnail?: Thumbnail;
-    size: string;
-}
-
-interface ContentfulEntry {
-    fields: CarFields;
-}
-
+// Updated interface for Supabase car data
 interface Car {
-    fields: {
-        title: string;
-        description: Document;
-        price: number;
-        thumbnail?: Thumbnail;
-        size: string;
-    };
+    id: string;
+    title: string;
+    description: string;
+    price: number;
+    size: string;
+    thumbnail_url: string;
+    available: boolean;
 }
 
-async function dataFetch() {
+async function fetchCarsFromSupabase(): Promise<Car[]> {
     try {
-        const result = await getStaticProps();
-        const cars = result.props.cars.map((entry: Entry<EntrySkeletonType>) => ({
-            fields: {
-                title: String(entry.fields.title || ""),
-                description: entry.fields.description as Document,
-                price: Number(entry.fields.price || 0),
-                thumbnail: entry.fields.thumbnail as Thumbnail | undefined,
-                size: String(entry.fields.size || ""),
-            },
-        }));
-        return cars;
+        const response = await fetch('/api/cars');
+        if (!response.ok) {
+            throw new Error('Failed to fetch cars');
+        }
+        const data = await response.json();
+        return data.cars || [];
     } catch (error) {
         console.error("Error fetching cars:", error);
         return [];
@@ -90,18 +63,9 @@ export default function BookingPage() {
 
     const getAvailableCars = async () => {
         try {
-            const result = await dataFetch();
-            const mappedCars: Car[] = result.map((entry: ContentfulEntry) => ({
-                fields: {
-                    title: String(entry.fields.title),
-                    description: entry.fields.description as Document,
-                    price: Number(entry.fields.price),
-                    thumbnail: entry.fields.thumbnail,
-                    size: String(entry.fields.size),
-                },
-            }));
-            setCars(mappedCars);
-            console.log("Cars fetched:", mappedCars);
+            const carsData = await fetchCarsFromSupabase();
+            setCars(carsData);
+            console.log("Cars fetched:", carsData);
         } catch (error) {
             console.log("Error fetching cars:", error);
         }
@@ -207,13 +171,13 @@ export default function BookingPage() {
     const progress = calculateProgress();
     const isContinueDisabled = progress < 100;
 
-    const filteredCars = cars.filter((c) => c.fields.size && c.fields.size.toLowerCase() === carType.toLowerCase());
+    const filteredCars = cars.filter((c) => c.size && c.size.toLowerCase() === carType.toLowerCase());
 
     const carBrands = Array.from(
         new Set(
             filteredCars.map((car) => ({
-                brand: car.fields.title,
-                price: car.fields.price
+                brand: car.title,
+                price: car.price
             }))
         )
     );
