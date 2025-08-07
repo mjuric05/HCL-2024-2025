@@ -103,6 +103,13 @@ export default function SignInAndLogInPage() {
 
     const isLoginDisabled = !isValidEmail(loginFields.email) || !loginFields.password;
 
+    // Handle Enter key press for login
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' && !isLoginDisabled && !loading) {
+            handleLogin();
+        }
+    };
+
     // Authentication handlers
     const handleLogin = async () => {
         setLoading(true);
@@ -114,7 +121,7 @@ export default function SignInAndLogInPage() {
             setErrorMessage(error.message);
         } else {
             setSuccessMessage("Login successful! Redirecting...");
-            setTimeout(() => router.push('/'), 1500);
+            router.push('/')
         }
         
         setLoading(false);
@@ -218,6 +225,7 @@ export default function SignInAndLogInPage() {
                                     email: isValidEmail(e.target.value)
                                 }));
                             }}
+                            onKeyPress={handleKeyPress}
                         />
                         {!validateInputs.email && (
                             <p className="text-red-500 text-sm">Email address needs to be of a valid format: user@domain.com</p>
@@ -229,6 +237,7 @@ export default function SignInAndLogInPage() {
                                 placeholder="Password"
                                 className={`${inputClassName} ${borderNormal} pr-12`}
                                 onChange={handleLoginChange}
+                                onKeyPress={handleKeyPress}
                             />
                             <button
                                 type="button"

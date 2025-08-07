@@ -29,20 +29,47 @@ const pages: Page[] = [
     },
 ];
 
-function processPage(page: Page, index: number, pathname: string, closeMenu: () => void, user: any, handleLogout: () => void) {
-    // Special handling for user welcome message
-    if (page.title.startsWith("Welcome,")) {
+function processPage(page: Page, index: number, pathname: string, closeMenu: () => void, user: any, handleLogout: () => void, isMobile: boolean = false) {
+    // Special handling for Profile when user is logged in
+    if (page.title === "Profile" && user) {
+        // On mobile, don't show the dropdown - Profile will be handled in the mobile menu
+        if (isMobile) {
+            return null;
+        }
+        
         return (
             <li key={index} className="relative group">
-                <span className="block px-3 py-2 rounded transition duration-300 text-[#9747FF] font-semibold cursor-pointer">
-                    {page.title}
-                </span>
-                <div className="absolute right-0 top-full mt-1 hidden group-hover:block bg-white shadow-lg rounded border z-50">
+                <button className="flex items-center justify-center w-10 h-10 rounded-full bg-[#9747FF] group-hover:bg-white border-2 border-[#9747FF] transition duration-300 focus:outline-none">
+                    {/* User Icon */}
+                    <svg 
+                        className="w-6 h-6 text-white group-hover:text-[#9747FF] transition duration-300" 
+                        fill="currentColor" 
+                        viewBox="0 0 20 20" 
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
+                        <path 
+                            fillRule="evenodd" 
+                            d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" 
+                            clipRule="evenodd"
+                        />
+                    </svg>
+                </button>
+                {/* Invisible bridge for smooth hover transition */}
+                <div className="absolute right-0 top-full w-full h-1 hidden group-hover:block"></div>
+                {/* Dropdown Menu */}
+                <div className="absolute right-0 top-full mt-1 hidden group-hover:block bg-white shadow-lg rounded border z-50 min-w-[150px]">
+                    <Link
+                        href="/profile"
+                        className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-t"
+                        onClick={closeMenu}
+                    >
+                        Profile
+                    </Link>
                     <button
                         onClick={handleLogout}
-                        className="block px-4 py-2 text-red-600 hover:bg-red-50 rounded w-full text-left"
+                        className="block px-4 py-2 text-red-600 hover:bg-red-50 rounded-b w-full text-left"
                     >
-                        Logout
+                        Log out
                     </button>
                 </div>
             </li>
@@ -55,7 +82,7 @@ function processPage(page: Page, index: number, pathname: string, closeMenu: () 
                 href={page.path}
                 className={`
                     block px-3 py-2 rounded transition duration-300 hover:bg-[#f1f1f1] hover:text-[#9747FF]  
-                    ${page.title === "Sign Up / Log In" ? "bg-[#9747FF] text-white hover:bg-[#ae73fa]" : ""}
+                    ${page.title === "Log in" ? "bg-[#9747FF] text-white hover:bg-[#ae73fa]" : ""}
                     ${page.path === "/" ? (pathname === page.path ? "font-extrabold" : "") : (pathname.startsWith(page.path) ? "font-extrabold" : "")}
                 `}
                 onClick={closeMenu}
@@ -86,14 +113,71 @@ export function Navigation() {
         if (user) {
             return [
                 ...basePages,
-                { title: `Welcome, ${user.email}`, path: "/profile" as `/${string}` },
+                { title: "Profile", path: "/profile" as `/${string}` },
             ];
         } else {
             return [
                 ...basePages,
-                { title: "Sign Up / Log In", path: "/sign_in_and_log_in" },
+                { title: "Log in", path: "/sign_in_and_log_in" },
             ];
         }
+    };
+
+    // Create mobile-specific pages that includes Profile and Logout as separate items
+    const getMobilePages = (): (Page | { title: string; action: "logout" })[] => {
+        const basePages: Page[] = [
+            { title: "Home", path: "/" },
+            { title: "Booking", path: "/booking" },
+            { title: "Cars", path: "/car_categories" },
+            { title: "Insurance", path: "/insurance_options" },
+        ];
+
+        if (user) {
+            return [
+                ...basePages,
+                { title: "Profile", path: "/profile" as `/${string}` },
+                { title: "Log out", action: "logout" as const },
+            ];
+        } else {
+            return [
+                ...basePages,
+                { title: "Log in", path: "/sign_in_and_log_in" },
+            ];
+        }
+    };
+
+    const processMobilePage = (item: Page | { title: string; action: "logout" }, index: number) => {
+        // Handle logout action
+        if ('action' in item && item.action === 'logout') {
+            return (
+                <li key={index}>
+                    <button
+                        onClick={handleLogout}
+                        className="block px-3 py-2 rounded transition duration-300 hover:bg-[#f1f1f1] hover:text-[#9747FF] text-red-600"
+                    >
+                        {item.title}
+                    </button>
+                </li>
+            );
+        }
+
+        // Handle regular page
+        const page = item as Page;
+        return (
+            <li key={index}>
+                <Link
+                    href={page.path}
+                    className={`
+                        block px-3 py-2 rounded transition duration-300 hover:bg-[#f1f1f1] hover:text-[#9747FF]  
+                        ${page.title === "Log in" ? "bg-[#9747FF] text-white hover:bg-[#ae73fa]" : ""}
+                        ${page.path === "/" ? (pathname === page.path ? "font-extrabold" : "") : (pathname.startsWith(page.path) ? "font-extrabold" : "")}
+                    `}
+                    onClick={closeMenu}
+                >
+                    {page.title}
+                </Link>
+            </li>
+        );
     };
 
     const handleLogout = async () => {
@@ -147,13 +231,13 @@ export function Navigation() {
                     </button>
                 </div>
                 <ul className="hidden md:flex justify-end space-x-4 pr-8">
-                    {getPages().map((page, index) => processPage(page, index, pathname, closeMenu, user, handleLogout))}
+                    {getPages().map((page, index) => processPage(page, index, pathname, closeMenu, user, handleLogout, false))}
                 </ul>
             </div>
             {isMenuOpen && (
                 <div className="md:hidden transition-all duration-300 ease-in-out transform">
                     <ul className="flex flex-col items-center space-y-4 mt-4">
-                        {getPages().map((page, index) => processPage(page, index, pathname, closeMenu, user, handleLogout))}
+                        {getMobilePages().map((item, index) => processMobilePage(item, index))}
                     </ul>
                 </div>
             )}
