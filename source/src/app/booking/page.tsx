@@ -6,6 +6,8 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { getStaticProps } from "@/components/carFetcher";
 import { Document } from "@contentful/rich-text-types";
 import { Entry, EntrySkeletonType } from "contentful";
+import { useAuth } from '@/lib/auth-context';
+import { useRouter } from 'next/navigation';
 
 interface Thumbnail {
     fields: {
@@ -66,6 +68,12 @@ export default function BookingPage() {
     const [pickupDate, setPickupDate] = useState<Date | null>(null);
     const [dropoffDate, setDropoffDate] = useState<Date | null>(null);
     const [cars, setCars] = useState<Car[]>([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
+
+    const { user } = useAuth();
+    const router = useRouter();
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -140,6 +148,62 @@ export default function BookingPage() {
         window.location.reload();
     };
 
+    const handleContinue = async () => {
+        if (!user) {
+            router.push('/sign_in_and_log_in');
+            return;
+        }
+
+        setIsSubmitting(true);
+        setErrorMessage('');
+        setSuccessMessage('');
+
+        try {
+            // Calculate total price
+            const selectedCar = carBrands.find(car => `${car.brand} - $${car.price}` === carBrand);
+            const carPrice = selectedCar ? selectedCar.price : 0;
+            const insurancePrice = insurance === 'Basic - $50' ? 50 : 
+                                 insurance === 'Medium - $70' ? 70 : 
+                                 insurance === 'Full - $100' ? 100 : 0;
+            const totalPrice = carPrice + insurancePrice;
+
+            const bookingData = {
+                car_type: carType,
+                car_brand: carBrand,
+                insurance_type: insurance,
+                pickup_location: pickupLocation,
+                pickup_date: pickupDate?.toISOString().split('T')[0],
+                pickup_time: pickupTime,
+                dropoff_date: dropoffDate?.toISOString().split('T')[0],
+                dropoff_time: dropoffTime,
+                total_price: totalPrice
+            };
+
+            const response = await fetch('/api/bookings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(bookingData)
+            });
+
+            if (response.ok) {
+                setSuccessMessage('Booking created successfully! Redirecting to your profile...');
+                setTimeout(() => {
+                    router.push('/profile');
+                }, 2000);
+            } else {
+                const errorData = await response.json();
+                setErrorMessage(errorData.error || 'Failed to create booking');
+            }
+        } catch (error) {
+            console.error('Error creating booking:', error);
+            setErrorMessage('Failed to create booking. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     const progress = calculateProgress();
     const isContinueDisabled = progress < 100;
 
@@ -157,6 +221,19 @@ export default function BookingPage() {
     return (
         <main className="flex min-h-screen flex-col items-center p-4 pt-24 md:p-10 md:pt-28">
             <h2 className="text-[#9747FF] text-3xl md:text-4xl font-semibold mt-4 text-center">Book Your Car</h2>
+            
+            {/* Success/Error Messages */}
+            {successMessage && (
+                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 max-w-2xl w-full mt-4">
+                    {successMessage}
+                </div>
+            )}
+            {errorMessage && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 max-w-2xl w-full mt-4">
+                    {errorMessage}
+                </div>
+            )}
+
             <div className="w-full max-w-2xl space-y-6">
                 {/* Progress Bar */}
                 <div className="w-full bg-gray-100 rounded-full h-4 mt-10 -mb-5">
@@ -340,10 +417,11 @@ export default function BookingPage() {
                         Cancel
                     </button>
                     <button
-                        className={`py-3 px-6 rounded-md ${isContinueDisabled ? 'bg-gray-300' : 'bg-green-500 text-white'}`}
-                        disabled={isContinueDisabled}
+                        className={`py-3 px-6 rounded-md ${isContinueDisabled || isSubmitting ? 'bg-gray-300' : 'bg-green-500 text-white hover:bg-green-600'}`}
+                        disabled={isContinueDisabled || isSubmitting}
+                        onClick={handleContinue}
                     >
-                        Continue
+                        {isSubmitting ? 'Creating Booking...' : 'Continue'}
                     </button>
                 </div>
             </div>

@@ -4,8 +4,8 @@ export async function getStaticProps() {
     try {
 
         const client = createClient({
-            space: process.env.CONTENTFUL_SPACE_ID || 'f8dn2cn69vjh',
-            accessToken: process.env.CONTENTFUL_ACCESS_TOKEN || 'nFLmOjmxsXlO9dVCZcKCWfEUCGwFLe--ua9mWFINKsc',
+            space: process.env.CONTENTFUL_SPACE_ID,
+            accessToken: process.env.CONTENTFUL_ACCESS_TOKEN,
         });
 
         const response = await client.getEntries({ content_type: "car" });

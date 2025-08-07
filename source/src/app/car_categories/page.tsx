@@ -1,26 +1,15 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
-import { documentToReactComponents } from "@contentful/rich-text-react-renderer"
-import type { Document } from "@contentful/rich-text-types"
-
-type Thumbnail = {
-    fields: {
-        file: {
-            url: string
-            size: string
-        }
-    }
-}
 
 type Car = {
-    fields: {
-        title: string
-        description: Document
-        price: number
-        thumbnail?: Thumbnail
-        size: string
-    }
+    id: string
+    title: string
+    description: string
+    price: number
+    thumbnail_url: string
+    size: string
+    available: boolean
 }
 
 export default function CarCategoriesPage() {
@@ -60,20 +49,20 @@ export default function CarCategoriesPage() {
         if (sizeSort !== "original") {
             sorted.sort((a, b) =>
                 sizeSort === "smallLarge"
-                    ? sizeOrder[a.fields.size as keyof typeof sizeOrder] - sizeOrder[b.fields.size as keyof typeof sizeOrder]
-                    : sizeOrder[b.fields.size as keyof typeof sizeOrder] - sizeOrder[a.fields.size as keyof typeof sizeOrder],
+                    ? sizeOrder[a.size as keyof typeof sizeOrder] - sizeOrder[b.size as keyof typeof sizeOrder]
+                    : sizeOrder[b.size as keyof typeof sizeOrder] - sizeOrder[a.size as keyof typeof sizeOrder],
             )
         }
 
         if (priceSort !== "original") {
             sorted.sort((a, b) =>
-                priceSort === "lowHigh" ? a.fields.price - b.fields.price : b.fields.price - a.fields.price,
+                priceSort === "lowHigh" ? a.price - b.price : b.price - a.price,
             )
         }
 
         if (searchQuery) {
             const lowerCaseQuery = searchQuery.toLowerCase()
-            sorted = sorted.filter((car) => car.fields.title.toLowerCase().includes(lowerCaseQuery))
+            sorted = sorted.filter((car) => car.title.toLowerCase().includes(lowerCaseQuery))
         }
 
         return sorted
@@ -94,24 +83,24 @@ export default function CarCategoriesPage() {
     }
 
     const renderCarCard = (car: Car) => (
-        <div key={car.fields.title} className="p-4 border-2 border-[#9747FF] rounded-md mb-4">
+        <div key={car.title} className="p-4 border-2 border-[#9747FF] rounded-md mb-4">
             <h3 className="text-2xl font-semibold border-b-2 border-[#9747FF] pb-2 text-center text-black dark:text-white">
-                {car.fields.title}
+                {car.title}
             </h3>
             <div className="flex flex-col items-center mt-4">
-                {car.fields.thumbnail?.fields?.file?.url && (
+                {car.thumbnail_url && (
                     <img
-                        src={car.fields.thumbnail.fields.file.url || "/placeholder.svg"}
-                        alt={car.fields.title}
+                        src={car.thumbnail_url || "/placeholder.svg"}
+                        alt={car.title}
                         className="w-full h-64 object-cover rounded-md"
                     />
                 )}
                 <div className="mt-4 text-center">
-                    <div className="text-lg text-black dark:text-white">{documentToReactComponents(car.fields.description)}</div>
+                    <div className="text-lg text-black dark:text-white">{car.description}</div>
                     <p className="text-lg text-black dark:text-white mt-2">
-                        Size: {car.fields.size.charAt(0).toUpperCase() + car.fields.size.slice(1)}
+                        Size: {car.size.charAt(0).toUpperCase() + car.size.slice(1)}
                     </p>
-                    <p className="text-lg font-bold text-black dark:text-white mt-2">Price: ${car.fields.price}</p>
+                    <p className="text-lg font-bold text-black dark:text-white mt-2">Price: ${car.price}</p>
                 </div>
             </div>
         </div>
