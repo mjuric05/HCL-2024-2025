@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
+import { useAuth } from "@/lib/auth-context";
+import { useRouter } from "next/navigation";
 
 export default function SignInAndLogInPage() {
     const [showPasswordCreate, setShowPasswordCreate] = useState(false);
@@ -22,6 +24,12 @@ export default function SignInAndLogInPage() {
         firstName: true,
         lastName: true
     });
+    const [loading, setLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
+
+    const { signIn, signUp } = useAuth();
+    const router = useRouter();
 
     const titleh3ClassName = "text-[#9747FF] text-2xl font-semibold mt-4 text-center";
     const inputClassName = "mt-2 p-2 border-4 rounded-md w-full text-black placeholder-black";
@@ -63,6 +71,45 @@ export default function SignInAndLogInPage() {
 
     const isLoginDisabled = !isValidEmail(loginFields.email) || !loginFields.password;
 
+    // Authentication handlers
+    const handleLogin = async () => {
+        setLoading(true);
+        setErrorMessage("");
+        
+        const { error } = await signIn(loginFields.email, loginFields.password);
+        
+        if (error) {
+            setErrorMessage(error.message);
+        } else {
+            setSuccessMessage("Login successful! Redirecting...");
+            setTimeout(() => router.push('/'), 1500);
+        }
+        
+        setLoading(false);
+    };
+
+    const handleCreateAccount = async () => {
+        setLoading(true);
+        setErrorMessage("");
+        
+        const { error } = await signUp(
+            createAccountFields.email, 
+            createAccountFields.password,
+            {
+                first_name: createAccountFields.name,
+                last_name: createAccountFields.surname
+            }
+        );
+        
+        if (error) {
+            setErrorMessage(error.message);
+        } else {
+            setSuccessMessage("Account created successfully! Please check your email to verify your account.");
+        }
+        
+        setLoading(false);
+    };
+
     const EyeClosedIcon = (
         <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -88,6 +135,18 @@ export default function SignInAndLogInPage() {
 
     return (
         <main className="flex min-h-screen flex-col items-center p-4 pt-24 md:p-10 md:pt-28">
+            {/* Error and Success Messages */}
+            {errorMessage && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 max-w-lg w-full">
+                    {errorMessage}
+                </div>
+            )}
+            {successMessage && (
+                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 max-w-lg w-full">
+                    {successMessage}
+                </div>
+            )}
+            
             <div className="flex flex-col md:flex-row justify-center w-full md:w-3/4 max-w-lg mt-8 space-y-8 md:space-y-0 md:space-x-8 mx-auto">
                 {displayLogin ? ( // Display Login or Create Account
                     // Log In
@@ -110,18 +169,20 @@ export default function SignInAndLogInPage() {
                         {!validateInputs.email && (
                             <p className="text-red-500 text-sm">Email address needs to be of a valid format: user@domain.com</p>
                         )}
-                        <div className="flex items-center mt-2">
+                        <div className="relative mt-2">
                             <input
                                 type={showPasswordLogin ? "text" : "password"}
                                 name="password"
                                 placeholder="Password"
-                                className={`${inputClassName} ${borderNormal}`}
+                                className={`${inputClassName} ${borderNormal} pr-12`}
                                 onChange={handleLoginChange}
                             />
                             <button
                                 type="button"
-                                onClick={() => setShowPasswordLogin(!showPasswordLogin)}
-                                className="ml-2 p-1 bg-white rounded-lg flex items-center justify-center"
+                                onMouseDown={() => setShowPasswordLogin(true)}
+                                onMouseUp={() => setShowPasswordLogin(false)}
+                                onMouseLeave={() => setShowPasswordLogin(false)}
+                                className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 flex items-center justify-center"
                             >
                                 {showPasswordLogin ? EyeOpenIcon : EyeClosedIcon}
                             </button>
@@ -129,13 +190,14 @@ export default function SignInAndLogInPage() {
                         <div className="flex justify-center mt-4">
                             <button
                                 type="button"
-                                className={`p-2 w-1/2 rounded-md text-white ${isLoginDisabled
+                                className={`p-2 w-1/2 rounded-md text-white ${isLoginDisabled || loading
                                     ? "bg-gray-400 cursor-not-allowed"
                                     : "bg-green-500 hover:bg-green-600"
                                     }`}
-                                disabled={isLoginDisabled}
+                                disabled={isLoginDisabled || loading}
+                                onClick={handleLogin}
                             >
-                                Log In
+                                {loading ? "Logging in..." : "Log In"}
                             </button>
                         </div>
                         <div className="flex justify-center mt-4">
@@ -232,13 +294,14 @@ export default function SignInAndLogInPage() {
                             <div className="flex justify-center mt-4">
                                 <button
                                     type="button"
-                                    className={`p-2 w-1/2 rounded-md text-white ${isCreateAccountDisabled
+                                    className={`p-2 w-1/2 rounded-md text-white ${isCreateAccountDisabled || loading
                                         ? "bg-gray-400 cursor-not-allowed"
                                         : "bg-green-500 hover:bg-green-600"
                                         }`}
-                                    disabled={isCreateAccountDisabled}
+                                    disabled={isCreateAccountDisabled || loading}
+                                    onClick={handleCreateAccount}
                                 >
-                                    Create Account
+                                    {loading ? "Creating..." : "Create Account"}
                                 </button>
                             </div>
                             <div className="flex justify-center mt-4">

@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navigation } from "@/components/navigation";
 import { Footer } from "@/components/footer";
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import { AuthProvider } from "@/lib/auth-context"
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -30,10 +31,13 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      ><Navigation />
-        {children}
-        <SpeedInsights />
-        <Footer />
+      >
+        <AuthProvider>
+          <Navigation />
+          {children}
+          <SpeedInsights />
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );

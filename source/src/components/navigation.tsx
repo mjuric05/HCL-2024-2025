@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { useAuth } from "@/lib/auth-context";
 
 type Page = {
     title: string;
@@ -28,7 +29,26 @@ const pages: Page[] = [
     },
 ];
 
-function processPage(page: Page, index: number, pathname: string, closeMenu: () => void) {
+function processPage(page: Page, index: number, pathname: string, closeMenu: () => void, user: any, handleLogout: () => void) {
+    // Special handling for user welcome message
+    if (page.title.startsWith("Welcome,")) {
+        return (
+            <li key={index} className="relative group">
+                <span className="block px-3 py-2 rounded transition duration-300 text-[#9747FF] font-semibold cursor-pointer">
+                    {page.title}
+                </span>
+                <div className="absolute right-0 top-full mt-1 hidden group-hover:block bg-white shadow-lg rounded border z-50">
+                    <button
+                        onClick={handleLogout}
+                        className="block px-4 py-2 text-red-600 hover:bg-red-50 rounded w-full text-left"
+                    >
+                        Logout
+                    </button>
+                </div>
+            </li>
+        );
+    }
+
     return (
         <li key={index}>
             <Link
@@ -50,8 +70,36 @@ export function Navigation() {
     const pathname = usePathname();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
+    const { user, signOut, loading } = useAuth();
 
     const closeMenu = () => setIsMenuOpen(false);
+
+    // Create dynamic pages based on auth status
+    const getPages = (): Page[] => {
+        const basePages: Page[] = [
+            { title: "Home", path: "/" },
+            { title: "Booking", path: "/booking" },
+            { title: "Cars", path: "/car_categories" },
+            { title: "Insurance", path: "/insurance_options" },
+        ];
+
+        if (user) {
+            return [
+                ...basePages,
+                { title: `Welcome, ${user.email}`, path: "/profile" as `/${string}` },
+            ];
+        } else {
+            return [
+                ...basePages,
+                { title: "Sign Up / Log In", path: "/sign_in_and_log_in" },
+            ];
+        }
+    };
+
+    const handleLogout = async () => {
+        await signOut();
+        closeMenu();
+    };
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -99,13 +147,13 @@ export function Navigation() {
                     </button>
                 </div>
                 <ul className="hidden md:flex justify-end space-x-4 pr-8">
-                    {pages.map((page, index) => processPage(page, index, pathname, closeMenu))}
+                    {getPages().map((page, index) => processPage(page, index, pathname, closeMenu, user, handleLogout))}
                 </ul>
             </div>
             {isMenuOpen && (
                 <div className="md:hidden transition-all duration-300 ease-in-out transform">
                     <ul className="flex flex-col items-center space-y-4 mt-4">
-                        {pages.map((page, index) => processPage(page, index, pathname, closeMenu))}
+                        {getPages().map((page, index) => processPage(page, index, pathname, closeMenu, user, handleLogout))}
                     </ul>
                 </div>
             )}
