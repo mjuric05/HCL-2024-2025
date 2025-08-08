@@ -15,12 +15,14 @@ CREATE TABLE public.user_profiles (
 CREATE TABLE public.bookings (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  car_id UUID REFERENCES public.cars(id),
   car_type TEXT NOT NULL,
   car_brand TEXT NOT NULL,
   insurance_type TEXT NOT NULL,
   pickup_location TEXT NOT NULL,
   pickup_date DATE NOT NULL,
   pickup_time TIME NOT NULL,
+  dropoff_location TEXT NOT NULL,
   dropoff_date DATE NOT NULL,
   dropoff_time TIME NOT NULL,
   total_price DECIMAL(10,2),
@@ -109,3 +111,16 @@ INSERT INTO public.cars (title, description, price, size, thumbnail_url) VALUES
 ('VW Arteon', '2.0L, Diesel, Automatic, Gray', 200, 'large', 'https://images.ctfassets.net/f8dn2cn69vjh/6erT1tPe7tsyQOCFHYWtuD/99983653c50e5e2a4da4e2fb1aff8c99/VWArteonRLine.jpg'),
 ('Audi A6 Avant', '3.0L, Diesel, Automatic, Black', 200, 'large', 'https://images.ctfassets.net/f8dn2cn69vjh/7ECPXCXiKOSRkvkpNX8Idd/813910205e8520d8d8bb2ca4e13c57e1/AudiA6Avant.jpg'),
 ('VW Passat CC R Line', '2.0L, Diesel, Automatic, White', 120, 'large', 'https://images.ctfassets.net/f8dn2cn69vjh/5F2QoRFh4MwExaidx99Kit/7dc20bc76a46e99c3c2fb57eae5bdd37/PassatCCRLine.jpg');
+
+
+-- ===============================================
+-- MIGRATION SCRIPT FOR EXISTING DATABASES
+-- ===============================================
+-- Run this if you already have a bookings table and need to add the new fields
+
+-- Add new columns to existing bookings table
+-- ALTER TABLE public.bookings ADD COLUMN IF NOT EXISTS car_id UUID REFERENCES public.cars(id);
+-- ALTER TABLE public.bookings ADD COLUMN IF NOT EXISTS dropoff_location TEXT;
+
+-- Note: You may need to update existing records to have dropoff_location values
+-- UPDATE public.bookings SET dropoff_location = pickup_location WHERE dropoff_location IS NULL;

@@ -42,12 +42,14 @@ export async function POST(request: Request) {
 
     const body = await request.json()
     const {
+      car_id,
       car_type,
       car_brand,
       insurance_type,
       pickup_location,
       pickup_date,
       pickup_time,
+      dropoff_location,
       dropoff_date,
       dropoff_time,
       total_price
@@ -58,12 +60,14 @@ export async function POST(request: Request) {
       .from('bookings')
       .insert({
         user_id: user.id,
+        car_id,
         car_type,
         car_brand,
         insurance_type,
         pickup_location,
         pickup_date,
         pickup_time,
+        dropoff_location,
         dropoff_date,
         dropoff_time,
         total_price,

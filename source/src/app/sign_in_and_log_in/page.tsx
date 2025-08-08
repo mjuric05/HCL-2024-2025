@@ -24,7 +24,8 @@ export default function SignInAndLogInPage() {
         password: true,
         confirmPassword: true,
         firstName: true,
-        lastName: true
+        lastName: true,
+        resendEmail: true
     });
     const [loading, setLoading] = useState(false);
     const [resendLoading, setResendLoading] = useState(false);
@@ -450,8 +451,11 @@ export default function SignInAndLogInPage() {
                     type="email"
                     placeholder="Enter your email address"
                     value={resendEmail}
-                    className={inputClassName}
-                    onChange={(e) => setResendEmail(e.target.value)}
+                    className={`${inputClassName} ${validateInputs.resendEmail ? borderNormal : borderError}`}
+                    onChange={(e) => {
+                        setResendEmail(e.target.value);
+                        setValidateInputs({ ...validateInputs, resendEmail: isValidEmail(e.target.value) });
+                    }}
                 />
                 <div className="flex justify-center mt-4">
                     <button
