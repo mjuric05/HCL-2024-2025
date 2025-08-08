@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
+import { createSupabaseClient } from '@/lib/supabase/client'
 
 interface UserProfile {
   id: string
@@ -28,7 +29,7 @@ interface Booking {
 }
 
 export default function ProfilePage() {
-  const { user, loading: authLoading, signOut } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const router = useRouter()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [bookings, setBookings] = useState<Booking[]>([])
@@ -37,8 +38,73 @@ export default function ProfilePage() {
   const [editMode, setEditMode] = useState(false)
   const [formData, setFormData] = useState({
     first_name: '',
-    last_name: ''
+    last_name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
   })
+  const [showPassword, setShowPassword] = useState(false)
+  const [validatePassword, setValidatePassword] = useState(true)
+  const [validateConfirmPassword, setValidateConfirmPassword] = useState(true)
+
+  const isValidPassword = (password: string) => {
+    return password.length >= 8;
+  }
+
+  const getPasswordStrength = (password: string) => {
+    if (password.length === 0) return { strength: 0, label: "", color: "" };
+    
+    let score = 0;
+    const checks = {
+      length: password.length >= 8,
+      lowercase: /[a-z]/.test(password),
+      uppercase: /[A-Z]/.test(password),
+      numbers: /\d/.test(password),
+      special: /[^A-Za-z0-9]/.test(password)
+    };
+    
+    // Base score for length
+    if (checks.length) score += 2;
+    // Additional points for longer passwords
+    if (password.length >= 10) score += 1;
+    if (password.length >= 12) score += 1;
+    
+    if (checks.lowercase) score += 1;
+    if (checks.uppercase) score += 1;
+    if (checks.numbers) score += 1;
+    if (checks.special) score += 1;
+    
+    if (score <= 2) return { strength: 1, label: "Weak", color: "bg-red-500" };
+    if (score <= 4) return { strength: 2, label: "Medium", color: "bg-yellow-500" };
+    return { strength: 3, label: "Strong", color: "bg-green-500" };
+  }
+
+  const passwordsMatch = () => {
+    return formData.password === formData.confirmPassword;
+  }
+
+  const EyeClosedIcon = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+      fill="black"
+      className="w-5 h-5"
+    >
+      <path d="M10 3C6 3 2.73 5.44 1.3 9.1a1 1 0 0 0 0 .8C2.73 13.56 6 16 10 16s7.27-2.44 8.7-6.1a1 1 0 0 0 0-.8C17.27 5.44 14 3 10 3zm5 7a5 5 0 1 1-10 0 5 5 0 0 1 10 0z" />
+      <path d="M13.59 13.41 6.59 6.41 5.17 7.82l7 7z" />
+    </svg>
+  );
+
+  const EyeOpenIcon = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+      fill="black"
+      className="w-5 h-5"
+    >
+      <path d="M10 3C6 3 2.73 5.44 1.3 9.1a1 1 0 0 0 0 .8C2.73 13.56 6 16 10 16s7.27-2.44 8.7-6.1a1 1 0 0 0 0-.8C17.27 5.44 14 3 10 3zm0 10a3 3 0 1 1 0-6 3 3 0 0 1 0 6z" />
+    </svg>
+  );
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -46,14 +112,18 @@ export default function ProfilePage() {
       return
     }
 
-    if (user) {
+    // Only fetch data if we have a user and haven't loaded data yet
+    if (user && !profile && bookings.length === 0 && !error) {
       fetchUserData()
     }
-  }, [user, authLoading, router])
+  }, [user, authLoading, router, profile, bookings.length, error])
 
   const fetchUserData = async () => {
     try {
-      setLoading(true)
+      // Only show loading if we don't have any data yet
+      if (!profile && bookings.length === 0) {
+        setLoading(true)
+      }
       
       // Fetch user profile
       const profileResponse = await fetch('/api/user/profile')
@@ -62,7 +132,10 @@ export default function ProfilePage() {
         setProfile(profileData.profile)
         setFormData({
           first_name: profileData.profile.first_name || '',
-          last_name: profileData.profile.last_name || ''
+          last_name: profileData.profile.last_name || '',
+          email: profileData.profile.email || user?.email || '',
+          password: '',
+          confirmPassword: ''
         })
       }
 
@@ -83,34 +156,87 @@ export default function ProfilePage() {
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault()
     
+    // Validate password if provided
+    if (formData.password.trim()) {
+      if (!isValidPassword(formData.password)) {
+        setError('Password must be at least 8 characters long')
+        return
+      }
+      if (!passwordsMatch()) {
+        setError('Passwords do not match')
+        return
+      }
+    }
+    
     try {
-      const response = await fetch('/api/user/profile', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
-      })
+      const supabase = createSupabaseClient()
+      let profileUpdateNeeded = false
+      
+      // Handle email change with Supabase Auth
+      if (formData.email !== user?.email) {
+        const { error: emailError } = await supabase.auth.updateUser({
+          email: formData.email
+        })
+        
+        if (emailError) {
+          setError(`Failed to update email: ${emailError.message}`)
+          return
+        }
+      }
 
-      if (response.ok) {
+      // Handle password change with Supabase Auth
+      if (formData.password.trim()) {
+        const { error: passwordError } = await supabase.auth.updateUser({
+          password: formData.password
+        })
+        
+        if (passwordError) {
+          setError(`Failed to update password: ${passwordError.message}`)
+          return
+        }
+      }
+
+      // Handle profile data (first_name, last_name) with custom API
+      if (formData.first_name !== profile?.first_name || formData.last_name !== profile?.last_name) {
+        const updateData = {
+          first_name: formData.first_name,
+          last_name: formData.last_name
+        }
+
+        const response = await fetch('/api/user/profile', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updateData)
+        })
+
+        if (!response.ok) {
+          setError('Failed to update profile information')
+          return
+        }
+
         const data = await response.json()
         setProfile(data.profile)
-        setEditMode(false)
-      } else {
-        setError('Failed to update profile')
       }
+
+      // Success
+      setEditMode(false)
+      setFormData(prev => ({ ...prev, password: '', confirmPassword: '' }))
+      setError(null)
+      
+      // Show success message if email was changed
+      if (formData.email !== user?.email) {
+        setError('Profile updated successfully! Please check your email to confirm the new email address.')
+      }
+      
     } catch (error) {
       console.error('Error updating profile:', error)
       setError('Failed to update profile')
     }
   }
 
-  const handleSignOut = async () => {
-    await signOut()
-    router.push('/')
-  }
-
-  if (authLoading || loading) {
+  if (authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-xl">Loading...</div>
@@ -120,6 +246,14 @@ export default function ProfilePage() {
 
   if (!user) {
     return null
+  }
+
+  if (loading && !profile && bookings.length === 0) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-xl">Loading profile...</div>
+      </div>
+    )
   }
 
   return (
@@ -136,11 +270,20 @@ export default function ProfilePage() {
         {/* Profile Section */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold">Profile Information</h2>
+            <h2 className="text-2xl font-semibold text-[#9747FF]">Profile Information</h2>
             <div className="space-x-2">
               {!editMode ? (
                 <button
-                  onClick={() => setEditMode(true)}
+                  onClick={() => {
+                    setFormData({
+                      first_name: profile?.first_name || '',
+                      last_name: profile?.last_name || '',
+                      email: user?.email || '',
+                      password: '',
+                      confirmPassword: ''
+                    })
+                    setEditMode(true)
+                  }}
                   className="bg-[#9747FF] text-white px-4 py-2 rounded hover:bg-[#7a33cc]"
                 >
                   Edit Profile
@@ -153,87 +296,176 @@ export default function ProfilePage() {
                   Cancel
                 </button>
               )}
-              <button
-                onClick={handleSignOut}
-                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-              >
-                Sign Out
-              </button>
             </div>
           </div>
 
           {editMode ? (
-            <form onSubmit={handleUpdateProfile} className="space-y-4">
+            <form onSubmit={handleUpdateProfile} className="space-y-4" autoComplete="off">
               <div>
-                <label className="block text-sm font-medium text-gray-700">First Name</label>
+                <label className="block text-sm font-medium text-[#9747FF]">First Name</label>
                 <input
                   type="text"
                   value={formData.first_name}
                   onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-[#9747FF] focus:border-[#9747FF]"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-[#9747FF] focus:border-[#9747FF] text-gray-700"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Last Name</label>
+                <label className="block text-sm font-medium text-[#9747FF]">Last Name</label>
                 <input
                   type="text"
                   value={formData.last_name}
                   onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-[#9747FF] focus:border-[#9747FF]"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-[#9747FF] focus:border-[#9747FF] text-gray-700"
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#9747FF]">Email</label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck="false"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-[#9747FF] focus:border-[#9747FF] text-gray-700"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#9747FF]">New Password</label>
+                <div className="relative mt-1">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={formData.password}
+                    onChange={(e) => {
+                      setFormData({ ...formData, password: e.target.value })
+                      setValidatePassword(e.target.value === '' || isValidPassword(e.target.value))
+                      setValidateConfirmPassword(e.target.value === formData.confirmPassword || formData.confirmPassword === '')
+                    }}
+                    placeholder="Leave blank to keep current password"
+                    autoComplete="new-password"
+                    autoCorrect="off"
+                    autoCapitalize="off"
+                    spellCheck="false"
+                    className={`block w-full px-3 py-2 pr-12 border rounded-md focus:outline-none focus:ring-[#9747FF] focus:border-[#9747FF] text-gray-700 ${
+                      validatePassword ? 'border-gray-300' : 'border-red-500'
+                    }`}
+                  />
+                  {formData.password && (
+                    <button
+                      type="button"
+                      onMouseDown={() => setShowPassword(true)}
+                      onMouseUp={() => setShowPassword(false)}
+                      onMouseLeave={() => setShowPassword(false)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 flex items-center justify-center"
+                    >
+                      {showPassword ? EyeOpenIcon : EyeClosedIcon}
+                    </button>
+                  )}
+                </div>
+                {!validatePassword && formData.password && (
+                  <p className="text-red-500 text-sm mt-1">Password must be at least 8 characters long</p>
+                )}
+                {formData.password && (
+                  <div className="mt-2">
+                    <div className="flex items-center space-x-2">
+                      <div className="flex-1 bg-gray-200 rounded-full h-2">
+                        <div
+                          className={`h-2 rounded-full transition-all duration-300 ${getPasswordStrength(formData.password).color}`}
+                          style={{ width: `${(getPasswordStrength(formData.password).strength / 3) * 100}%` }}
+                        ></div>
+                      </div>
+                      <span className="text-sm text-gray-600">
+                        {getPasswordStrength(formData.password).label}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#9747FF]">Confirm New Password</label>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={formData.confirmPassword}
+                  onChange={(e) => {
+                    setFormData({ ...formData, confirmPassword: e.target.value })
+                    setValidateConfirmPassword(formData.password === e.target.value || e.target.value === '')
+                  }}
+                  placeholder="Confirm your new password"
+                  autoComplete="new-password"
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck="false"
+                  className={`mt-1 block w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-[#9747FF] focus:border-[#9747FF] text-gray-700 ${
+                    validateConfirmPassword ? 'border-gray-300' : 'border-red-500'
+                  }`}
+                />
+                {!validateConfirmPassword && formData.confirmPassword && (
+                  <p className="text-red-500 text-sm mt-1">Passwords do not match</p>
+                )}
               </div>
               <button
                 type="submit"
-                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                disabled={
+                  formData.password.trim() !== '' && (!validatePassword || !validateConfirmPassword)
+                }
+                className={`px-4 py-2 rounded text-white ${
+                  (formData.password.trim() !== '' && (!validatePassword || !validateConfirmPassword))
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-green-500 hover:bg-green-600'
+                }`}
               >
                 Save Changes
               </button>
             </form>
           ) : (
             <div className="space-y-2">
-              <p><strong>Email:</strong> {user.email}</p>
-              <p><strong>First Name:</strong> {profile?.first_name || 'Not set'}</p>
-              <p><strong>Last Name:</strong> {profile?.last_name || 'Not set'}</p>
-              <p><strong>Member since:</strong> {profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : 'N/A'}</p>
+              <p><strong className="text-[#9747FF]">Email:</strong> <span className="text-gray-700">{user.email}</span></p>
+              <p><strong className="text-[#9747FF]">First Name:</strong> <span className="text-gray-700">{profile?.first_name || 'Not set'}</span></p>
+              <p><strong className="text-[#9747FF]">Last Name:</strong> <span className="text-gray-700">{profile?.last_name || 'Not set'}</span></p>
+              <p><strong className="text-[#9747FF]">Member since:</strong> <span className="text-gray-700">{profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : 'N/A'}</span></p>
             </div>
           )}
         </div>
 
-        {/* Bookings Section */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-2xl font-semibold mb-4">Your Bookings</h2>
-          {bookings.length === 0 ? (
-            <p className="text-gray-500">No bookings yet.</p>
-          ) : (
-            <div className="space-y-4">
-              {bookings.map((booking) => (
-                <div key={booking.id} className="border border-gray-200 rounded-lg p-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <h3 className="font-semibold text-lg">{booking.car_brand}</h3>
-                      <p><strong>Type:</strong> {booking.car_type}</p>
-                      <p><strong>Insurance:</strong> {booking.insurance_type}</p>
-                      <p><strong>Status:</strong> <span className={`px-2 py-1 rounded text-sm ${
-                        booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                        booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-red-100 text-red-800'
-                      }`}>{booking.status}</span></p>
+        {/* Bookings Section - Hidden when editing profile */}
+        {!editMode && (
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-2xl font-semibold mb-4 text-[#9747FF]">Your Bookings</h2>
+            {bookings.length === 0 ? (
+              <p className="text-gray-500">No bookings yet.</p>
+            ) : (
+              <div className="space-y-4">
+                {bookings.map((booking) => (
+                  <div key={booking.id} className="border border-gray-200 rounded-lg p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <h3 className="font-semibold text-lg text-gray-700">{booking.car_brand}</h3>
+                        <p><strong className="text-[#9747FF]">Type:</strong> <span className="text-gray-700">{booking.car_type}</span></p>
+                        <p><strong className="text-[#9747FF]">Insurance:</strong> <span className="text-gray-700">{booking.insurance_type}</span></p>
+                        <p><strong className="text-[#9747FF]">Status:</strong> <span className={`px-2 py-1 rounded text-sm ${
+                          booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                          booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-red-100 text-red-800'
+                        }`}>{booking.status}</span></p>
+                      </div>
+                      <div>
+                        <p><strong className="text-[#9747FF]">Pickup:</strong> <span className="text-gray-700">{booking.pickup_location}</span></p>
+                        <p><strong className="text-[#9747FF]">Pickup Date:</strong> <span className="text-gray-700">{booking.pickup_date} at {booking.pickup_time}</span></p>
+                        <p><strong className="text-[#9747FF]">Return Date:</strong> <span className="text-gray-700">{booking.dropoff_date} at {booking.dropoff_time}</span></p>
+                        <p><strong className="text-[#9747FF]">Total Price:</strong> <span className="text-gray-700">${booking.total_price}</span></p>
+                      </div>
                     </div>
-                    <div>
-                      <p><strong>Pickup:</strong> {booking.pickup_location}</p>
-                      <p><strong>Pickup Date:</strong> {booking.pickup_date} at {booking.pickup_time}</p>
-                      <p><strong>Return Date:</strong> {booking.dropoff_date} at {booking.dropoff_time}</p>
-                      <p><strong>Total Price:</strong> ${booking.total_price}</p>
-                    </div>
+                    <p className="text-sm text-gray-500 mt-2">
+                      <strong className="text-[#9747FF]">Booked on:</strong> {new Date(booking.created_at).toLocaleDateString()}
+                    </p>
                   </div>
-                  <p className="text-sm text-gray-500 mt-2">
-                    Booked on: {new Date(booking.created_at).toLocaleDateString()}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </main>
   )

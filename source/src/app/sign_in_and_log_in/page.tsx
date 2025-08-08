@@ -29,8 +29,8 @@ export default function SignInAndLogInPage() {
     const [loading, setLoading] = useState(false);
     const [resendLoading, setResendLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
-    const [resendEmail, setResendEmail] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
+    const [resendEmail, setResendEmail] = useState("");
 
     const { signIn, signUp, resendConfirmation } = useAuth();
     const router = useRouter();
@@ -71,15 +71,19 @@ export default function SignInAndLogInPage() {
         
         let score = 0;
         const checks = {
-            length: password.length >= 8,
-            lowercase: /[a-z]/.test(password),
-            uppercase: /[A-Z]/.test(password),
-            numbers: /\d/.test(password),
-            special: /[^A-Za-z0-9]/.test(password)
+        length: password.length >= 8,
+        lowercase: /[a-z]/.test(password),
+        uppercase: /[A-Z]/.test(password),
+        numbers: /\d/.test(password),
+        special: /[^A-Za-z0-9]/.test(password)
         };
         
         // Base score for length
         if (checks.length) score += 2;
+        // Additional points for longer passwords
+        if (password.length >= 10) score += 1;
+        if (password.length >= 12) score += 1;
+        
         if (checks.lowercase) score += 1;
         if (checks.uppercase) score += 1;
         if (checks.numbers) score += 1;
@@ -88,7 +92,7 @@ export default function SignInAndLogInPage() {
         if (score <= 2) return { strength: 1, label: "Weak", color: "bg-red-500" };
         if (score <= 4) return { strength: 2, label: "Medium", color: "bg-yellow-500" };
         return { strength: 3, label: "Strong", color: "bg-green-500" };
-    };
+    }
 
     const passwordsMatch = () => {
         return createAccountFields.password === createAccountFields.confirmPassword;
@@ -120,7 +124,6 @@ export default function SignInAndLogInPage() {
         if (error) {
             setErrorMessage(error.message);
         } else {
-            setSuccessMessage("Login successful! Redirecting...");
             router.push('/')
         }
         
@@ -130,6 +133,7 @@ export default function SignInAndLogInPage() {
     const handleCreateAccount = async () => {
         setLoading(true);
         setErrorMessage("");
+        setSuccessMessage("");
         
         const { error } = await signUp(
             createAccountFields.email, 
@@ -144,6 +148,14 @@ export default function SignInAndLogInPage() {
             setErrorMessage(error.message);
         } else {
             setSuccessMessage("Account created successfully! Please check your email and click the confirmation link to verify your account.");
+            // Clear the form fields after successful account creation
+            setCreateAccountFields({
+                name: "",
+                surname: "",
+                email: "",
+                password: "",
+                confirmPassword: ""
+            });
         }
         
         setLoading(false);
@@ -163,7 +175,6 @@ export default function SignInAndLogInPage() {
         if (error) {
             setErrorMessage(error.message);
         } else {
-            setSuccessMessage("Confirmation email sent! Please check your inbox.");
             setResendEmail("");
         }
         
@@ -205,8 +216,7 @@ export default function SignInAndLogInPage() {
                 <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 max-w-lg w-full">
                     {successMessage}
                 </div>
-            )}
-            
+            )}            
             <div className="flex flex-col md:flex-row justify-center w-full md:w-3/4 max-w-lg mt-8 space-y-8 md:space-y-0 md:space-x-8 mx-auto">
                 {displayLogin ? ( // Display Login or Create Account
                     // Log In
@@ -433,7 +443,7 @@ export default function SignInAndLogInPage() {
             <div className={`w-full md:w-3/4 max-w-lg mt-8 ${frameClassName}`}>
                 <h3 className={titleh3ClassName}>Resend Email Confirmation</h3>
                 <hr className="border-[#9747FF] my-2" style={{ borderWidth: "2px" }} />
-                <p className="text-sm text-gray-600 mb-4 text-center">
+                <p className="text-sm text-white mb-4 text-center">
                     Didn&apos;t receive a confirmation email? Enter your email address to resend it.
                 </p>
                 <input
