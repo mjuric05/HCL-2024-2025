@@ -20,20 +20,18 @@ const titleh2Adapted = "text-[#9747FF] text-xl md:text-2xl font-semibold";
 const titleh3ClassName = "text-[#9747FF] text-2xl font-semibold";
 
 export default function Home() {
-  const bookingRouter = useRouter();
-  const carCategoriesRouter = useRouter();
-  const insuranceRouter = useRouter();
+  const router = useRouter();
 
   const handleBookingClick = () => {
-    bookingRouter.push('/booking');
+    router.push('/booking');
   };
 
   const handleCarCategoriesClick = () => {
-    carCategoriesRouter.push('/car_categories');
+    router.push('/car_categories');
   };
 
   const handleInsuranceClick = () => {
-    insuranceRouter.push('/insurance_options');
+    router.push('/insurance_options');
   };
 
   return (
