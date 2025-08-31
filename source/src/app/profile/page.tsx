@@ -36,10 +36,10 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [editMode, setEditMode] = useState(false)
+  const [cancelBookingId, setCancelBookingId] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
-    email: '',
     password: '',
     confirmPassword: ''
   })
@@ -133,7 +133,6 @@ export default function ProfilePage() {
         setFormData({
           first_name: profileData.profile.first_name || '',
           last_name: profileData.profile.last_name || '',
-          email: profileData.profile.email || user?.email || '',
           password: '',
           confirmPassword: ''
         })
@@ -170,20 +169,7 @@ export default function ProfilePage() {
     
     try {
       const supabase = createSupabaseClient()
-      let profileUpdateNeeded = false
       
-      // Handle email change with Supabase Auth
-      if (formData.email !== user?.email) {
-        const { error: emailError } = await supabase.auth.updateUser({
-          email: formData.email
-        })
-        
-        if (emailError) {
-          setError(`Failed to update email: ${emailError.message}`)
-          return
-        }
-      }
-
       // Handle password change with Supabase Auth
       if (formData.password.trim()) {
         const { error: passwordError } = await supabase.auth.updateUser({
@@ -225,14 +211,30 @@ export default function ProfilePage() {
       setFormData(prev => ({ ...prev, password: '', confirmPassword: '' }))
       setError(null)
       
-      // Show success message if email was changed
-      if (formData.email !== user?.email) {
-        setError('Profile updated successfully! Please check your email to confirm the new email address.')
-      }
-      
     } catch (error) {
       console.error('Error updating profile:', error)
       setError('Failed to update profile')
+    }
+  }
+
+  const handleCancelBooking = async (bookingId: string) => {
+    try {
+      const response = await fetch(`/api/bookings/${bookingId}`, {
+        method: 'DELETE',
+      })
+      
+      if (response.ok) {
+        // Remove the booking from the state since it's deleted from the database
+        setBookings(bookings.filter(booking => booking.id !== bookingId))
+        setCancelBookingId(null)
+        setError(null)
+      } else {
+        const errorData = await response.json();
+        setError(`Failed to cancel booking: ${errorData.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error deleting booking:', error)
+      setError('Failed to cancel booking')
     }
   }
 
@@ -278,7 +280,6 @@ export default function ProfilePage() {
                     setFormData({
                       first_name: profile?.first_name || '',
                       last_name: profile?.last_name || '',
-                      email: user?.email || '',
                       password: '',
                       confirmPassword: ''
                     })
@@ -316,19 +317,6 @@ export default function ProfilePage() {
                   type="text"
                   value={formData.last_name}
                   onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-[#9747FF] focus:border-[#9747FF] text-gray-700"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[#9747FF]">Email</label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  autoComplete="off"
-                  autoCorrect="off"
-                  autoCapitalize="off"
-                  spellCheck="false"
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-[#9747FF] focus:border-[#9747FF] text-gray-700"
                 />
               </div>
@@ -444,11 +432,6 @@ export default function ProfilePage() {
                         <h3 className="font-semibold text-lg text-gray-700">{booking.car_brand}</h3>
                         <p><strong className="text-[#9747FF]">Type:</strong> <span className="text-gray-700">{booking.car_type}</span></p>
                         <p><strong className="text-[#9747FF]">Insurance:</strong> <span className="text-gray-700">{booking.insurance_type}</span></p>
-                        <p><strong className="text-[#9747FF]">Status:</strong> <span className={`px-2 py-1 rounded text-sm ${
-                          booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                          booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'
-                        }`}>{booking.status}</span></p>
                       </div>
                       <div>
                         <p><strong className="text-[#9747FF]">Pickup:</strong> <span className="text-gray-700">{booking.pickup_location}</span></p>
@@ -457,9 +440,17 @@ export default function ProfilePage() {
                         <p><strong className="text-[#9747FF]">Total Price:</strong> <span className="text-gray-700">${booking.total_price}</span></p>
                       </div>
                     </div>
-                    <p className="text-sm text-gray-500 mt-2">
-                      <strong className="text-[#9747FF]">Booked on:</strong> {new Date(booking.created_at).toLocaleDateString()}
-                    </p>
+                    <div className="flex justify-between items-center mt-4">
+                      <p className="text-sm text-gray-500">
+                        <strong className="text-[#9747FF]">Booked on:</strong> {new Date(booking.created_at).toLocaleDateString()}
+                      </p>
+                      <button
+                        onClick={() => setCancelBookingId(booking.id)}
+                        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 text-sm"
+                      >
+                        Cancel Booking
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -467,6 +458,32 @@ export default function ProfilePage() {
           </div>
         )}
       </div>
+
+      {/* Cancel Booking Confirmation Dialog */}
+      {cancelBookingId && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Cancel Booking</h3>
+            <p className="text-gray-700 mb-6">
+              Are you sure you want to cancel this booking? This action cannot be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setCancelBookingId(null)}
+                className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 text-gray-700"
+              >
+                Keep Booking
+              </button>
+              <button
+                onClick={() => handleCancelBooking(cancelBookingId)}
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+              >
+                Cancel Booking
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   )
 }

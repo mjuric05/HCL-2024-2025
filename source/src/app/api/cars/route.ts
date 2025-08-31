@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
     try {
+        console.log("Fetching cars from database...");
         const supabase = await createSupabaseServerClient();
         
         const { data: cars, error } = await supabase
@@ -16,6 +17,7 @@ export async function GET() {
             return NextResponse.json({ error: "Failed to fetch car data" }, { status: 500 });
         }
 
+        console.log(`Found ${cars?.length || 0} cars in database`);
         return NextResponse.json(cars || []);
     } catch (error) {
         console.error("Error fetching car data:", error);

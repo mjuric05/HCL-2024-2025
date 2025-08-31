@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import './_components/costum-datepicker.css';
 import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
 
@@ -31,12 +32,9 @@ interface BookingData {
 
 // Location options
 const LOCATIONS = [
-    'Airport Terminal 1',
-    'Airport Terminal 2', 
-    'Downtown Office',
-    'City Center',
-    'Train Station',
-    'Hotel District'
+    'Office 1, Put Trščenice 6, Split',
+    'Office 2, Ul. Tomića stine 9, Split', 
+    'Split Airport, Cesta Dr. Franje Tuđmana 1270'
 ];
 
 // Insurance options
@@ -49,11 +47,16 @@ const INSURANCE_OPTIONS = [
 async function fetchCarsFromSupabase(): Promise<Car[]> {
     try {
         const response = await fetch('/api/cars');
+        
         if (!response.ok) {
+            const errorText = await response.text();
+            console.error("API error response:", errorText);
             throw new Error('Failed to fetch cars');
         }
-        const data = await response.json();
-        return data.cars || [];
+        
+        const data: Car[] = await response.json();
+        
+        return data;
     } catch (error) {
         console.error("Error fetching cars:", error);
         return [];
@@ -75,6 +78,7 @@ async function checkCarAvailability(carId: string, pickupDate: Date, dropoffDate
         });
         
         if (!response.ok) {
+            console.error(`Availability API error for car ${carId}:`, response.status);
             return false;
         }
         
@@ -109,10 +113,28 @@ export default function BookingPage() {
     const { user } = useAuth();
     const router = useRouter();
 
+    // Redirect to login if user is not authenticated
+    useEffect(() => {
+        if (user === null) {
+            router.push('/sign_in_and_log_in');
+        }
+    }, [user, router]);
+
     // Load cars on component mount
     useEffect(() => {
-        loadCars();
-    }, []);
+        if (user) {
+            loadCars();
+        }
+    }, [user]);
+
+    // Check availability when date/time changes (only after user fills in dates/times)
+    useEffect(() => {
+        if (bookingData.pickupDate && bookingData.dropoffDate && 
+            bookingData.pickupTime && bookingData.dropoffTime && 
+            cars.length > 0) {
+            checkAvailability();
+        }
+    }, [bookingData.pickupDate, bookingData.dropoffDate, bookingData.pickupTime, bookingData.dropoffTime, cars]);
 
     const loadCars = async () => {
         try {
@@ -125,18 +147,14 @@ export default function BookingPage() {
 
     // Check availability when date/time changes
     const checkAvailability = async () => {
-        if (!bookingData.pickupDate || !bookingData.dropoffDate || !bookingData.pickupTime || !bookingData.dropoffTime) {
-            return;
-        }
-
         setIsLoading(true);
         const available: Car[] = [];
 
         for (const car of cars) {
             const isAvailable = await checkCarAvailability(
                 car.id,
-                bookingData.pickupDate,
-                bookingData.dropoffDate
+                bookingData.pickupDate!,
+                bookingData.dropoffDate!
             );
             if (isAvailable) {
                 available.push(car);
@@ -199,7 +217,18 @@ export default function BookingPage() {
             
             // Calculate total price
             const selectedInsurance = INSURANCE_OPTIONS.find(ins => ins.name === bookingData.insuranceType);
-            const total = (bookingData.selectedCar?.price || 0) + (selectedInsurance?.price || 0);
+            
+            // Calculate number of days
+            const pickupDate = bookingData.pickupDate!;
+            const dropoffDate = bookingData.dropoffDate!;
+            const timeDifference = dropoffDate.getTime() - pickupDate.getTime();
+            const daysDifference = Math.ceil(timeDifference / (1000 * 3600 * 24));
+            const numberOfDays = Math.max(1, daysDifference); // Minimum 1 day
+            
+            const carPriceTotal = (bookingData.selectedCar?.price || 0) * numberOfDays;
+            const insurancePrice = selectedInsurance?.price || 0;
+            const total = carPriceTotal + insurancePrice;
+            
             setBookingData(prev => ({ ...prev, totalPrice: total }));
             setCurrentStep(4);
         } else if (currentStep === 4) {
@@ -232,6 +261,7 @@ export default function BookingPage() {
                 },
                 body: JSON.stringify({
                     car_id: bookingData.selectedCar?.id,
+                    car_type: bookingData.selectedCar?.size,
                     car_brand: bookingData.selectedCar?.title,
                     insurance_type: bookingData.insuranceType,
                     pickup_location: bookingData.pickupLocation,
@@ -261,6 +291,48 @@ export default function BookingPage() {
         }
     };
 
+    // Reusable time picker component
+    const renderTimePicker = (
+        value: string,
+        onChange: (time: string) => void,
+        label: string
+    ) => (
+        <div className="flex gap-1 items-center">
+            <select
+                value={value.split(':')[0] || ''}
+                onChange={(e) => {
+                    const hour = e.target.value.padStart(2, '0');
+                    const minute = value.split(':')[1] || '00';
+                    onChange(`${hour}:${minute}`);
+                }}
+                className="w-16 p-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#9747FF] focus:border-transparent text-gray-800 dark:text-white dark:bg-gray-700 text-sm"
+            >
+                <option value="">HH</option>
+                {Array.from({ length: 24 }, (_, i) => (
+                    <option key={i} value={i.toString().padStart(2, '0')}>
+                        {i.toString().padStart(2, '0')}
+                    </option>
+                ))}
+            </select>
+            <span className="text-gray-700 dark:text-gray-300 font-bold">:</span>
+            <select
+                value={value.split(':')[1] || ''}
+                onChange={(e) => {
+                    const hour = value.split(':')[0] || '00';
+                    const minute = e.target.value;
+                    onChange(`${hour}:${minute}`);
+                }}
+                className="w-16 p-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#9747FF] focus:border-transparent text-gray-800 dark:text-white dark:bg-gray-700 text-sm"
+            >
+                <option value="">MM</option>
+                <option value="00">00</option>
+                <option value="15">15</option>
+                <option value="30">30</option>
+                <option value="45">45</option>
+            </select>
+        </div>
+    );
+
     // Step 1: Date, Time, and Location Selection
     const renderStep1 = () => (
         <div className="w-full max-w-2xl mx-auto">
@@ -272,25 +344,29 @@ export default function BookingPage() {
                     <h3 className="text-xl font-semibold text-[#9747FF]">Pickup Details</h3>
                     
                     <div>
-                        <label className="block text-sm font-medium text-[#9747FF] mb-2">Pickup Date</label>
-                        <DatePicker
-                            selected={bookingData.pickupDate}
-                            onChange={(date) => setBookingData(prev => ({ ...prev, pickupDate: date }))}
-                            filterDate={(date) => !isPastDate(date)}
-                            dateFormat="dd/MM/yyyy"
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#9747FF] focus:border-transparent text-gray-800"
-                            placeholderText="Select pickup date"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-[#9747FF] mb-2">Pickup Time</label>
-                        <input
-                            type="time"
-                            value={bookingData.pickupTime}
-                            onChange={(e) => setBookingData(prev => ({ ...prev, pickupTime: e.target.value }))}
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#9747FF] focus:border-transparent text-gray-800"
-                        />
+                        <label className="block text-sm font-medium text-[#9747FF] mb-2">Date & Time</label>
+                        <div className="flex gap-2 items-center">
+                            <div className="relative">
+                                <DatePicker
+                                    selected={bookingData.pickupDate}
+                                    onChange={(date) => setBookingData(prev => ({ ...prev, pickupDate: date }))}
+                                    filterDate={(date) => !isPastDate(date)}
+                                    dateFormat="dd.MM.yyyy"
+                                    className="w-32 p-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#9747FF] focus:border-transparent text-gray-800 dark:text-white dark:bg-gray-700 text-sm"
+                                    placeholderText=""
+                                />
+                                {!bookingData.pickupDate && (
+                                    <div className="absolute inset-0 flex items-center px-2.5 pointer-events-none text-gray-800 dark:text-gray-300 text-sm">
+                                        Select date
+                                    </div>
+                                )}
+                            </div>
+                            {renderTimePicker(
+                                bookingData.pickupTime,
+                                (time) => setBookingData(prev => ({ ...prev, pickupTime: time })),
+                                'Pickup Time'
+                            )}
+                        </div>
                     </div>
 
                     <div>
@@ -298,7 +374,7 @@ export default function BookingPage() {
                         <select
                             value={bookingData.pickupLocation}
                             onChange={(e) => setBookingData(prev => ({ ...prev, pickupLocation: e.target.value }))}
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#9747FF] focus:border-transparent text-gray-800"
+                            className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#9747FF] focus:border-transparent text-gray-800 dark:text-white dark:bg-gray-700"
                         >
                             <option value="">Select pickup location</option>
                             {LOCATIONS.map((location) => (
@@ -313,25 +389,29 @@ export default function BookingPage() {
                     <h3 className="text-xl font-semibold text-[#9747FF]">Drop-off Details</h3>
                     
                     <div>
-                        <label className="block text-sm font-medium text-[#9747FF] mb-2">Drop-off Date</label>
-                        <DatePicker
-                            selected={bookingData.dropoffDate}
-                            onChange={(date) => setBookingData(prev => ({ ...prev, dropoffDate: date }))}
-                            filterDate={(date) => !isPastDate(date)}
-                            dateFormat="dd/MM/yyyy"
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#9747FF] focus:border-transparent text-gray-800"
-                            placeholderText="Select drop-off date"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-[#9747FF] mb-2">Drop-off Time</label>
-                        <input
-                            type="time"
-                            value={bookingData.dropoffTime}
-                            onChange={(e) => setBookingData(prev => ({ ...prev, dropoffTime: e.target.value }))}
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#9747FF] focus:border-transparent text-gray-800"
-                        />
+                        <label className="block text-sm font-medium text-[#9747FF] mb-2">Date & Time</label>
+                        <div className="flex gap-2 items-center">
+                            <div className="relative">
+                                <DatePicker
+                                    selected={bookingData.dropoffDate}
+                                    onChange={(date) => setBookingData(prev => ({ ...prev, dropoffDate: date }))}
+                                    filterDate={(date) => !isPastDate(date)}
+                                    dateFormat="dd.MM.yyyy"
+                                    className="w-32 p-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#9747FF] focus:border-transparent text-gray-800 dark:text-white dark:bg-gray-700 text-sm"
+                                    placeholderText=""
+                                />
+                                {!bookingData.dropoffDate && (
+                                    <div className="absolute inset-0 flex items-center px-2.5 pointer-events-none text-gray-800 dark:text-gray-300 text-sm">
+                                        Select date
+                                    </div>
+                                )}
+                            </div>
+                            {renderTimePicker(
+                                bookingData.dropoffTime,
+                                (time) => setBookingData(prev => ({ ...prev, dropoffTime: time })),
+                                'Drop-off Time'
+                            )}
+                        </div>
                     </div>
 
                     <div>
@@ -339,7 +419,7 @@ export default function BookingPage() {
                         <select
                             value={bookingData.dropoffLocation}
                             onChange={(e) => setBookingData(prev => ({ ...prev, dropoffLocation: e.target.value }))}
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#9747FF] focus:border-transparent text-gray-800"
+                            className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#9747FF] focus:border-transparent text-gray-800 dark:text-white dark:bg-gray-700"
                         >
                             <option value="">Select drop-off location</option>
                             {LOCATIONS.map((location) => (
@@ -353,49 +433,54 @@ export default function BookingPage() {
     );
 
     // Step 2: Car Selection
-    const renderStep2 = () => (
-        <div className="w-full max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-[#9747FF] mb-8 text-center">Choose Your Car</h2>
-            
-            {isLoading ? (
-                <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#9747FF] mx-auto"></div>
-                    <p className="mt-4 text-gray-700">Checking availability...</p>
-                </div>
-            ) : availableCars.length === 0 ? (
-                <div className="text-center py-8">
-                    <p className="text-gray-700">No cars available for the selected dates. Please try different dates.</p>
-                </div>
-            ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {availableCars.map((car) => (
-                        <div
-                            key={car.id}
-                            onClick={() => setBookingData(prev => ({ ...prev, selectedCar: car }))}
-                            className={`border rounded-lg p-4 cursor-pointer transition-all hover:shadow-lg ${
-                                bookingData.selectedCar?.id === car.id
-                                    ? 'border-[#9747FF] bg-purple-50'
-                                    : 'border-gray-300 hover:border-[#9747FF]'
-                            }`}
-                        >
-                            <img
-                                src={car.thumbnail_url}
-                                alt={car.title}
-                                className="w-full h-40 object-cover rounded-lg mb-4"
-                                onError={(e) => {
-                                    const target = e.target as HTMLImageElement;
-                                }}
-                            />
-                            <h3 className="font-semibold text-lg text-gray-800">{car.title}</h3>
-                            <p className="text-gray-700 text-sm mb-2">{car.description}</p>
-                            <p className="text-[#9747FF] font-bold text-xl">${car.price}/day</p>
-                            <p className="text-sm text-gray-700 capitalize">{car.size} car</p>
-                        </div>
-                    ))}
-                </div>
-            )}
-        </div>
-    );
+    const renderStep2 = () => {
+        // Use availableCars if they've been checked, otherwise show all cars
+        const carsToShow = availableCars.length > 0 || isLoading ? availableCars : cars;
+        
+        return (
+            <div className="w-full max-w-4xl mx-auto">
+                <h2 className="text-3xl font-bold text-[#9747FF] mb-8 text-center">Choose Your Car</h2>
+                
+                {isLoading ? (
+                    <div className="text-center py-8">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#9747FF] mx-auto"></div>
+                        <p className="mt-4 text-gray-700 dark:text-gray-300">Checking availability...</p>
+                    </div>
+                ) : carsToShow.length === 0 ? (
+                    <div className="text-center py-8">
+                        <p className="text-gray-700 dark:text-gray-300">No cars available for the selected dates. Please try different dates.</p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {carsToShow.map((car) => (
+                            <div
+                                key={car.id}
+                                onClick={() => setBookingData(prev => ({ ...prev, selectedCar: car }))}
+                                className={`border rounded-lg p-4 cursor-pointer transition-all hover:shadow-lg ${
+                                    bookingData.selectedCar?.id === car.id
+                                        ? 'border-[#9747FF] bg-purple-50 dark:bg-purple-900/20'
+                                        : 'border-gray-300 dark:border-gray-600 hover:border-[#9747FF]'
+                                }`}
+                            >
+                                <img
+                                    src={car.thumbnail_url}
+                                    alt={car.title}
+                                    className="w-full h-40 object-cover rounded-lg mb-4"
+                                    onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                    }}
+                                />
+                                <h3 className="font-semibold text-lg text-gray-800 dark:text-white">{car.title}</h3>
+                                <p className="text-gray-700 dark:text-gray-300 text-sm mb-2">{car.description}</p>
+                                <p className="text-[#9747FF] font-bold text-xl">${car.price}/day</p>
+                                <p className="text-sm text-gray-700 dark:text-gray-300 capitalize">{car.size} car</p>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        );
+    };
 
     // Step 3: Insurance Selection
     const renderStep3 = () => (
@@ -409,13 +494,13 @@ export default function BookingPage() {
                         onClick={() => setBookingData(prev => ({ ...prev, insuranceType: insurance.name }))}
                         className={`border rounded-lg p-6 cursor-pointer transition-all hover:shadow-lg ${
                             bookingData.insuranceType === insurance.name
-                                ? 'border-[#9747FF] bg-purple-50'
-                                : 'border-gray-300 hover:border-[#9747FF]'
+                                ? 'border-[#9747FF] bg-purple-50 dark:bg-purple-900/20'
+                                : 'border-gray-300 dark:border-gray-600 hover:border-[#9747FF]'
                         }`}
                     >
-                        <h3 className="font-semibold text-xl text-gray-800 mb-2">{insurance.name}</h3>
+                        <h3 className="font-semibold text-xl text-gray-800 dark:text-white mb-2">{insurance.name}</h3>
                         <p className="text-[#9747FF] font-bold text-2xl mb-3">${insurance.price}</p>
-                        <p className="text-gray-700 text-sm">{insurance.description}</p>
+                        <p className="text-gray-700 dark:text-gray-300 text-sm">{insurance.description}</p>
                     </div>
                 ))}
             </div>
@@ -427,35 +512,46 @@ export default function BookingPage() {
         <div className="w-full max-w-2xl mx-auto">
             <h2 className="text-3xl font-bold text-[#9747FF] mb-8 text-center">Confirm Your Booking</h2>
             
-            <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <h3 className="font-semibold text-[#9747FF]">Pickup</h3>
-                        <p className="text-gray-700">{bookingData.pickupDate?.toLocaleDateString()}</p>
-                        <p className="text-gray-700">{bookingData.pickupTime}</p>
-                        <p className="text-gray-700">{bookingData.pickupLocation}</p>
+                        <p className="text-gray-700 dark:text-gray-300">{bookingData.pickupDate?.toLocaleDateString()}</p>
+                        <p className="text-gray-700 dark:text-gray-300">{bookingData.pickupTime}</p>
+                        <p className="text-gray-700 dark:text-gray-300">{bookingData.pickupLocation}</p>
                     </div>
                     <div>
                         <h3 className="font-semibold text-[#9747FF]">Drop-off</h3>
-                        <p className="text-gray-700">{bookingData.dropoffDate?.toLocaleDateString()}</p>
-                        <p className="text-gray-700">{bookingData.dropoffTime}</p>
-                        <p className="text-gray-700">{bookingData.dropoffLocation}</p>
+                        <p className="text-gray-700 dark:text-gray-300">{bookingData.dropoffDate?.toLocaleDateString()}</p>
+                        <p className="text-gray-700 dark:text-gray-300">{bookingData.dropoffTime}</p>
+                        <p className="text-gray-700 dark:text-gray-300">{bookingData.dropoffLocation}</p>
                     </div>
                 </div>
                 
-                <div className="border-t pt-4">
+                <div className="border-t dark:border-gray-600 pt-4">
                     <h3 className="font-semibold text-[#9747FF]">Selected Car</h3>
-                    <p className="text-gray-700">{bookingData.selectedCar?.title}</p>
-                    <p className="text-gray-700">${bookingData.selectedCar?.price}/day</p>
+                    <p className="text-gray-700 dark:text-gray-300">{bookingData.selectedCar?.title}</p>
+                    {(() => {
+                        const pickupDate = bookingData.pickupDate!;
+                        const dropoffDate = bookingData.dropoffDate!;
+                        const timeDifference = dropoffDate.getTime() - pickupDate.getTime();
+                        const numberOfDays = Math.max(1, Math.ceil(timeDifference / (1000 * 3600 * 24)));
+                        const carPriceTotal = (bookingData.selectedCar?.price || 0) * numberOfDays;
+                        return (
+                            <p className="text-gray-700 dark:text-gray-300">
+                                ${bookingData.selectedCar?.price}/day × {numberOfDays} day{numberOfDays > 1 ? 's' : ''} = ${carPriceTotal}
+                            </p>
+                        );
+                    })()}
                 </div>
                 
-                <div className="border-t pt-4">
+                <div className="border-t dark:border-gray-600 pt-4">
                     <h3 className="font-semibold text-[#9747FF]">Insurance</h3>
-                    <p className="text-gray-700">{bookingData.insuranceType}</p>
-                    <p className="text-gray-700">${INSURANCE_OPTIONS.find(ins => ins.name === bookingData.insuranceType)?.price}</p>
+                    <p className="text-gray-700 dark:text-gray-300">{bookingData.insuranceType}</p>
+                    <p className="text-gray-700 dark:text-gray-300">${INSURANCE_OPTIONS.find(ins => ins.name === bookingData.insuranceType)?.price}</p>
                 </div>
                 
-                <div className="border-t pt-4">
+                <div className="border-t dark:border-gray-600 pt-4">
                     <h3 className="font-bold text-xl text-[#9747FF]">Total: ${bookingData.totalPrice}</h3>
                 </div>
             </div>
@@ -464,84 +560,94 @@ export default function BookingPage() {
 
     return (
         <main className="flex min-h-screen flex-col items-center p-4 pt-24 md:p-10 md:pt-28">
-            {/* Progress Indicator */}
-            <div className="w-full max-w-4xl mb-8">
-                <div className="flex items-center justify-between">
-                    {[1, 2, 3, 4].map((step) => (
-                        <div key={step} className="flex items-center">
-                            <div
-                                className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
-                                    currentStep >= step
-                                        ? 'bg-[#9747FF] text-white'
-                                        : 'bg-gray-300 text-gray-600'
-                                }`}
-                            >
-                                {step}
-                            </div>
-                            {step < 4 && (
-                                <div
-                                    className={`w-16 h-1 mx-2 ${
-                                        currentStep > step ? 'bg-[#9747FF]' : 'bg-gray-300'
-                                    }`}
-                                />
-                            )}
+            {/* Show loading while checking authentication */}
+            {user === null ? (
+                <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#9747FF] mx-auto"></div>
+                    <p className="mt-4 text-gray-700 dark:text-gray-300">Checking authentication...</p>
+                </div>
+            ) : (
+                <>
+                    {/* Progress Indicator */}
+                    <div className="w-full max-w-4xl mb-8">
+                        <div className="flex items-center justify-between">
+                            {[1, 2, 3, 4].map((step) => (
+                                <div key={step} className="flex items-center">
+                                    <div
+                                        className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
+                                            currentStep >= step
+                                                ? 'bg-[#9747FF] text-white'
+                                                : 'bg-gray-300 text-gray-600'
+                                        }`}
+                                    >
+                                        {step}
+                                    </div>
+                                    {step < 4 && (
+                                        <div
+                                            className={`w-16 h-1 mx-2 ${
+                                                currentStep > step ? 'bg-[#9747FF]' : 'bg-gray-300'
+                                            }`}
+                                        />
+                                    )}
+                                </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
-                <div className="flex justify-between mt-2 text-sm text-gray-700">
-                    <span>Dates & Locations</span>
-                    <span>Choose Car</span>
-                    <span>Insurance</span>
-                    <span>Confirm</span>
-                </div>
-            </div>
+                        <div className="flex justify-between mt-2 text-sm text-gray-700">
+                            <span>Dates & Locations</span>
+                            <span>Choose Car</span>
+                            <span>Insurance</span>
+                            <span>Confirm</span>
+                        </div>
+                    </div>
 
-            {/* Error and Success Messages */}
-            {errorMessage && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 max-w-2xl w-full">
-                    {errorMessage}
-                </div>
+                    {/* Error and Success Messages */}
+                    {errorMessage && (
+                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 max-w-2xl w-full">
+                            {errorMessage}
+                        </div>
+                    )}
+                    {successMessage && (
+                        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 max-w-2xl w-full">
+                            {successMessage}
+                        </div>
+                    )}
+
+                    {/* Step Content */}
+                    <div className="w-full mb-8">
+                        {currentStep === 1 && renderStep1()}
+                        {currentStep === 2 && renderStep2()}
+                        {currentStep === 3 && renderStep3()}
+                        {currentStep === 4 && renderStep4()}
+                    </div>
+
+                    {/* Navigation Buttons */}
+                    <div className="flex justify-between w-full max-w-2xl">
+                        <button
+                            onClick={handleBack}
+                            disabled={currentStep === 1}
+                            className={`px-6 py-3 rounded-lg font-semibold ${
+                                currentStep === 1
+                                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                    : 'bg-gray-500 text-white hover:bg-gray-600'
+                            }`}
+                        >
+                            Back
+                        </button>
+                        
+                        <button
+                            onClick={handleNext}
+                            disabled={isLoading}
+                            className={`px-6 py-3 rounded-lg font-semibold ${
+                                isLoading
+                                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                    : 'bg-[#9747FF] text-white hover:bg-[#7a33cc]'
+                            }`}
+                        >
+                            {isLoading ? 'Processing...' : currentStep === 4 ? 'Confirm Booking' : 'Continue'}
+                        </button>
+                    </div>
+                </>
             )}
-            {successMessage && (
-                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 max-w-2xl w-full">
-                    {successMessage}
-                </div>
-            )}
-
-            {/* Step Content */}
-            <div className="w-full mb-8">
-                {currentStep === 1 && renderStep1()}
-                {currentStep === 2 && renderStep2()}
-                {currentStep === 3 && renderStep3()}
-                {currentStep === 4 && renderStep4()}
-            </div>
-
-            {/* Navigation Buttons */}
-            <div className="flex justify-between w-full max-w-2xl">
-                <button
-                    onClick={handleBack}
-                    disabled={currentStep === 1}
-                    className={`px-6 py-3 rounded-lg font-semibold ${
-                        currentStep === 1
-                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                            : 'bg-gray-500 text-white hover:bg-gray-600'
-                    }`}
-                >
-                    Back
-                </button>
-                
-                <button
-                    onClick={handleNext}
-                    disabled={isLoading}
-                    className={`px-6 py-3 rounded-lg font-semibold ${
-                        isLoading
-                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                            : 'bg-[#9747FF] text-white hover:bg-[#7a33cc]'
-                    }`}
-                >
-                    {isLoading ? 'Processing...' : currentStep === 4 ? 'Confirm Booking' : 'Continue'}
-                </button>
-            </div>
         </main>
     );
 }
