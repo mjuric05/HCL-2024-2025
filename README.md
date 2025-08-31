@@ -19,7 +19,7 @@
 ### Semester Project
 
 - Link to your production version: [**Production Version**](https://hcl-2024-2025.vercel.app) <!-- Replace with actual URL -->
-- Link to your final report: [**Final Report**]((https://github.com/mjuric05/HCL-2024-2025/blob/main/assignments/Final%20Report/Final%20Report.pdf)) <!-- Replace with actual URL -->
+- Link to your final report: [**Final Report**](https://github.com/mjuric05/HCL-2024-2025/blob/main/assignments/Final%20Report/Final%20Report.pdf) <!-- Replace with actual URL -->
 <!-- Add more as necessary -->
 
 ### Semester Assignments
