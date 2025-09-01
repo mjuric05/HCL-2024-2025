@@ -82,6 +82,16 @@ export default function BookingPage() {
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    // Validation state for step 1 fields
+    const [fieldValidation, setFieldValidation] = useState({
+        pickupDate: true,
+        pickupTime: true,
+        pickupLocation: true,
+        dropoffDate: true,
+        dropoffTime: true,
+        dropoffLocation: true
+    });
 
     const { user } = useAuth();
     const router = useRouter();
@@ -147,6 +157,17 @@ export default function BookingPage() {
 
         if (currentStep === 1) {
             // Validate date/time/location step
+            const validationErrors = {
+                pickupDate: !!bookingData.pickupDate,
+                pickupTime: !!bookingData.pickupTime,
+                pickupLocation: !!bookingData.pickupLocation,
+                dropoffDate: !!bookingData.dropoffDate,
+                dropoffTime: !!bookingData.dropoffTime,
+                dropoffLocation: !!bookingData.dropoffLocation
+            };
+
+            setFieldValidation(validationErrors);
+
             if (!bookingData.pickupDate || !bookingData.pickupTime || !bookingData.pickupLocation || 
                 !bookingData.dropoffDate || !bookingData.dropoffTime || !bookingData.dropoffLocation) {
                 setErrorMessage('Please fill in all fields');
@@ -250,47 +271,53 @@ export default function BookingPage() {
         }
     };
 
-    // Reusable time picker component
     const renderTimePicker = (
         value: string,
         onChange: (time: string) => void,
-        label: string
-    ) => (
-        <div className="flex gap-1 items-center">
-            <select
-                value={value.split(':')[0] || ''}
-                onChange={(e) => {
-                    const hour = e.target.value.padStart(2, '0');
-                    const minute = value.split(':')[1] || '00';
-                    onChange(`${hour}:${minute}`);
-                }}
-                className="w-16 p-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#9747FF] focus:border-transparent text-gray-800 dark:text-white dark:bg-gray-700 text-sm"
-            >
-                <option value="">HH</option>
-                {Array.from({ length: 24 }, (_, i) => (
-                    <option key={i} value={i.toString().padStart(2, '0')}>
-                        {i.toString().padStart(2, '0')}
-                    </option>
-                ))}
-            </select>
-            <span className="text-gray-700 dark:text-gray-300 font-bold">:</span>
-            <select
-                value={value.split(':')[1] || ''}
-                onChange={(e) => {
-                    const hour = value.split(':')[0] || '00';
-                    const minute = e.target.value;
-                    onChange(`${hour}:${minute}`);
-                }}
-                className="w-16 p-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#9747FF] focus:border-transparent text-gray-800 dark:text-white dark:bg-gray-700 text-sm"
-            >
-                <option value="">MM</option>
-                <option value="00">00</option>
-                <option value="15">15</option>
-                <option value="30">30</option>
-                <option value="45">45</option>
-            </select>
-        </div>
-    );
+        label: string,
+        isValid: boolean = true
+    ) => {
+        const borderClass = isValid ? 'border-gray-300 dark:border-gray-600' : 'border-red-500';
+        const focusClass = isValid ? 'focus:ring-[#9747FF] focus:border-transparent' : 'focus:ring-red-500 focus:border-red-500';
+        const validClass = isValid && value ? 'border-green-500' : borderClass;
+        
+        return (
+            <div className="flex gap-1 items-center">
+                <select
+                    value={value.split(':')[0] || ''}
+                    onChange={(e) => {
+                        const hour = e.target.value.padStart(2, '0');
+                        const minute = value.split(':')[1] || '00';
+                        onChange(`${hour}:${minute}`);
+                    }}
+                    className={`w-16 p-2.5 border ${validClass} rounded-lg focus:ring-2 ${focusClass} text-gray-800 dark:text-white dark:bg-gray-700 text-sm`}
+                >
+                    <option value="">HH</option>
+                    {Array.from({ length: 24 }, (_, i) => (
+                        <option key={i} value={i.toString().padStart(2, '0')}>
+                            {i.toString().padStart(2, '0')}
+                        </option>
+                    ))}
+                </select>
+                <span className="text-gray-700 dark:text-gray-300 font-bold">:</span>
+                <select
+                    value={value.split(':')[1] || ''}
+                    onChange={(e) => {
+                        const hour = value.split(':')[0] || '00';
+                        const minute = e.target.value;
+                        onChange(`${hour}:${minute}`);
+                    }}
+                    className={`w-16 p-2.5 border ${validClass} rounded-lg focus:ring-2 ${focusClass} text-gray-800 dark:text-white dark:bg-gray-700 text-sm`}
+                >
+                    <option value="">MM</option>
+                    <option value="00">00</option>
+                    <option value="15">15</option>
+                    <option value="30">30</option>
+                    <option value="45">45</option>
+                </select>
+            </div>
+        );
+    };
 
     // Step 1: Date, Time, and Location Selection
     const renderStep1 = () => (
@@ -308,10 +335,19 @@ export default function BookingPage() {
                             <div className="relative">
                                 <DatePicker
                                     selected={bookingData.pickupDate}
-                                    onChange={(date) => setBookingData(prev => ({ ...prev, pickupDate: date }))}
+                                    onChange={(date) => {
+                                        setBookingData(prev => ({ ...prev, pickupDate: date }));
+                                        setFieldValidation(prev => ({ ...prev, pickupDate: true }));
+                                    }}
                                     filterDate={(date) => !isPastDate(date)}
                                     dateFormat="dd.MM.yyyy"
-                                    className="w-32 p-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#9747FF] focus:border-transparent text-gray-800 dark:text-white dark:bg-gray-700 text-sm"
+                                    className={`w-32 p-2.5 border ${
+                                        !fieldValidation.pickupDate 
+                                            ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+                                            : bookingData.pickupDate
+                                                ? 'border-green-500 focus:ring-[#9747FF] focus:border-transparent'
+                                                : 'border-gray-300 dark:border-gray-600 focus:ring-[#9747FF] focus:border-transparent'
+                                    } rounded-lg focus:ring-2 text-gray-800 dark:text-white dark:bg-gray-700 text-sm`}
                                     placeholderText=""
                                 />
                                 {!bookingData.pickupDate && (
@@ -322,8 +358,12 @@ export default function BookingPage() {
                             </div>
                             {renderTimePicker(
                                 bookingData.pickupTime,
-                                (time) => setBookingData(prev => ({ ...prev, pickupTime: time })),
-                                'Pickup Time'
+                                (time) => {
+                                    setBookingData(prev => ({ ...prev, pickupTime: time }));
+                                    setFieldValidation(prev => ({ ...prev, pickupTime: true }));
+                                },
+                                'Pickup Time',
+                                fieldValidation.pickupTime
                             )}
                         </div>
                     </div>
@@ -332,8 +372,17 @@ export default function BookingPage() {
                         <label className="block text-sm font-medium text-[#9747FF] mb-2">Pickup Location</label>
                         <select
                             value={bookingData.pickupLocation}
-                            onChange={(e) => setBookingData(prev => ({ ...prev, pickupLocation: e.target.value }))}
-                            className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#9747FF] focus:border-transparent text-gray-800 dark:text-white dark:bg-gray-700"
+                            onChange={(e) => {
+                                setBookingData(prev => ({ ...prev, pickupLocation: e.target.value }));
+                                setFieldValidation(prev => ({ ...prev, pickupLocation: true }));
+                            }}
+                            className={`w-full p-3 border ${
+                                !fieldValidation.pickupLocation
+                                    ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+                                    : bookingData.pickupLocation
+                                        ? 'border-green-500 focus:ring-[#9747FF] focus:border-transparent'
+                                        : 'border-gray-300 dark:border-gray-600 focus:ring-[#9747FF] focus:border-transparent'
+                            } rounded-lg focus:ring-2 text-gray-800 dark:text-white dark:bg-gray-700`}
                         >
                             <option value="">Select pickup location</option>
                             {LOCATIONS.map((location) => (
@@ -353,10 +402,19 @@ export default function BookingPage() {
                             <div className="relative">
                                 <DatePicker
                                     selected={bookingData.dropoffDate}
-                                    onChange={(date) => setBookingData(prev => ({ ...prev, dropoffDate: date }))}
+                                    onChange={(date) => {
+                                        setBookingData(prev => ({ ...prev, dropoffDate: date }));
+                                        setFieldValidation(prev => ({ ...prev, dropoffDate: true }));
+                                    }}
                                     filterDate={(date) => !isPastDate(date)}
                                     dateFormat="dd.MM.yyyy"
-                                    className="w-32 p-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#9747FF] focus:border-transparent text-gray-800 dark:text-white dark:bg-gray-700 text-sm"
+                                    className={`w-32 p-2.5 border ${
+                                        !fieldValidation.dropoffDate 
+                                            ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+                                            : bookingData.dropoffDate
+                                                ? 'border-green-500 focus:ring-[#9747FF] focus:border-transparent'
+                                                : 'border-gray-300 dark:border-gray-600 focus:ring-[#9747FF] focus:border-transparent'
+                                    } rounded-lg focus:ring-2 text-gray-800 dark:text-white dark:bg-gray-700 text-sm`}
                                     placeholderText=""
                                 />
                                 {!bookingData.dropoffDate && (
@@ -367,8 +425,12 @@ export default function BookingPage() {
                             </div>
                             {renderTimePicker(
                                 bookingData.dropoffTime,
-                                (time) => setBookingData(prev => ({ ...prev, dropoffTime: time })),
-                                'Drop-off Time'
+                                (time) => {
+                                    setBookingData(prev => ({ ...prev, dropoffTime: time }));
+                                    setFieldValidation(prev => ({ ...prev, dropoffTime: true }));
+                                },
+                                'Drop-off Time',
+                                fieldValidation.dropoffTime
                             )}
                         </div>
                     </div>
@@ -377,8 +439,17 @@ export default function BookingPage() {
                         <label className="block text-sm font-medium text-[#9747FF] mb-2">Drop-off Location</label>
                         <select
                             value={bookingData.dropoffLocation}
-                            onChange={(e) => setBookingData(prev => ({ ...prev, dropoffLocation: e.target.value }))}
-                            className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#9747FF] focus:border-transparent text-gray-800 dark:text-white dark:bg-gray-700"
+                            onChange={(e) => {
+                                setBookingData(prev => ({ ...prev, dropoffLocation: e.target.value }));
+                                setFieldValidation(prev => ({ ...prev, dropoffLocation: true }));
+                            }}
+                            className={`w-full p-3 border ${
+                                !fieldValidation.dropoffLocation
+                                    ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+                                    : bookingData.dropoffLocation
+                                        ? 'border-green-500 focus:ring-[#9747FF] focus:border-transparent'
+                                        : 'border-gray-300 dark:border-gray-600 focus:ring-[#9747FF] focus:border-transparent'
+                            } rounded-lg focus:ring-2 text-gray-800 dark:text-white dark:bg-gray-700`}
                         >
                             <option value="">Select drop-off location</option>
                             {LOCATIONS.map((location) => (
@@ -531,11 +602,16 @@ export default function BookingPage() {
                 <>
                     {/* Progress Indicator */}
                     <div className="w-full max-w-4xl mb-8">
-                        <div className="flex items-center justify-between">
-                            {[1, 2, 3, 4].map((step) => (
-                                <div key={step} className="flex items-center">
+                        <div className="flex justify-between">
+                            {[
+                                { step: 1, label: 'Dates & Locations' },
+                                { step: 2, label: 'Choose Car' },
+                                { step: 3, label: 'Insurance' },
+                                { step: 4, label: 'Confirm' }
+                            ].map(({ step, label }) => (
+                                <div key={step} className="flex flex-col items-center">
                                     <div
-                                        className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
+                                        className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg mb-3 ${
                                             currentStep >= step
                                                 ? 'bg-[#9747FF] text-white'
                                                 : 'bg-gray-300 text-gray-600'
@@ -543,21 +619,11 @@ export default function BookingPage() {
                                     >
                                         {step}
                                     </div>
-                                    {step < 4 && (
-                                        <div
-                                            className={`w-16 h-1 mx-2 ${
-                                                currentStep > step ? 'bg-[#9747FF]' : 'bg-gray-300'
-                                            }`}
-                                        />
-                                    )}
+                                    <span className="text-lg font-bold text-[#9747FF] text-center leading-tight">
+                                        {label}
+                                    </span>
                                 </div>
                             ))}
-                        </div>
-                        <div className="flex justify-between mt-2 text-sm text-gray-700">
-                            <span>Dates & Locations</span>
-                            <span>Choose Car</span>
-                            <span>Insurance</span>
-                            <span>Confirm</span>
                         </div>
                     </div>
 
