@@ -444,12 +444,25 @@ export default function ProfilePage() {
                       <p className="text-sm text-gray-500">
                         <strong className="text-[#9747FF]">Booked on:</strong> {new Date(booking.created_at).toLocaleDateString()}
                       </p>
-                      <button
-                        onClick={() => setCancelBookingId(booking.id)}
-                        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 text-sm"
-                      >
-                        Cancel Booking
-                      </button>
+                      {(() => {
+                        // Check if booking has started (pickup date is in the past)
+                        const pickupDateTime = new Date(`${booking.pickup_date} ${booking.pickup_time}`);
+                        const now = new Date();
+                        const hasStarted = pickupDateTime <= now;
+                        
+                        return !hasStarted ? (
+                          <button
+                            onClick={() => setCancelBookingId(booking.id)}
+                            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 text-sm"
+                          >
+                            Cancel Booking
+                          </button>
+                        ) : (
+                          <span className="text-sm text-gray-500 italic">
+                            Booking has started
+                          </span>
+                        );
+                      })()}
                     </div>
                   </div>
                 ))}

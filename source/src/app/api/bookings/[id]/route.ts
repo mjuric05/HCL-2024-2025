@@ -19,13 +19,23 @@ export async function DELETE(
     // First check if the booking exists and belongs to the user
     const { data: existingBooking, error: checkError } = await supabase
       .from('bookings')
-      .select('id, user_id')
+      .select('id, user_id, pickup_date, pickup_time')
       .eq('id', bookingId)
       .eq('user_id', user.id)
       .single()
 
     if (checkError || !existingBooking) {
       return NextResponse.json({ error: 'Booking not found or unauthorized' }, { status: 404 })
+    }
+
+    // Check if the booking has already started
+    const pickupDateTime = new Date(`${existingBooking.pickup_date} ${existingBooking.pickup_time}`)
+    const now = new Date()
+    
+    if (pickupDateTime <= now) {
+      return NextResponse.json({ 
+        error: 'Cannot cancel booking that has already started' 
+      }, { status: 400 })
     }
 
     // Delete the booking from the database
