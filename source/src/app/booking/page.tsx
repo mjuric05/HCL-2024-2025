@@ -141,6 +141,56 @@ export default function BookingPage() {
         return date < today;
     };
 
+    // Helper function to check if a time is available for pickup (at least 2 hours from now)
+    const isTimeAvailableForPickup = (hour: number, minute: number, selectedDate: Date | null) => {
+        if (!selectedDate) return true;
+        
+        const today = new Date();
+        const selectedDay = new Date(selectedDate);
+        selectedDay.setHours(0, 0, 0, 0);
+        const todayDay = new Date(today);
+        todayDay.setHours(0, 0, 0, 0);
+        
+        // If selected date is not today, all times are available
+        if (selectedDay.getTime() !== todayDay.getTime()) {
+            return true;
+        }
+        
+        // If selected date is today, check if time is at least 2 hours from now
+        const selectedDateTime = new Date(selectedDate);
+        selectedDateTime.setHours(hour, minute, 0, 0);
+        
+        const twoHoursFromNow = new Date(today);
+        twoHoursFromNow.setHours(today.getHours() + 2, today.getMinutes(), 0, 0);
+        
+        return selectedDateTime >= twoHoursFromNow;
+    };
+
+    // Helper function to check if dropoff time is valid (after pickup time)
+    const isTimeAvailableForDropoff = (hour: number, minute: number) => {
+        if (!bookingData.pickupDate || !bookingData.dropoffDate || !bookingData.pickupTime) {
+            return true;
+        }
+        
+        const pickupDate = new Date(bookingData.pickupDate);
+        const dropoffDate = new Date(bookingData.dropoffDate);
+        
+        // If different dates, all times are available for dropoff
+        if (pickupDate.toDateString() !== dropoffDate.toDateString()) {
+            return true;
+        }
+        
+        // If same date, dropoff time must be after pickup time
+        const [pickupHour, pickupMinute] = bookingData.pickupTime.split(':').map(Number);
+        const dropoffDateTime = new Date();
+        dropoffDateTime.setHours(hour, minute, 0, 0);
+        
+        const pickupDateTime = new Date();
+        pickupDateTime.setHours(pickupHour, pickupMinute, 0, 0);
+        
+        return dropoffDateTime > pickupDateTime;
+    };
+
     const isValidDateTime = () => {
         if (!bookingData.pickupDate || !bookingData.dropoffDate || !bookingData.pickupTime || !bookingData.dropoffTime) {
             return false;
@@ -160,14 +210,52 @@ export default function BookingPage() {
             const hasAllFields = !!(bookingData.pickupDate && bookingData.pickupTime && bookingData.pickupLocation && 
                 bookingData.dropoffDate && bookingData.dropoffTime && bookingData.dropoffLocation);
             
-            const isDateTimeValid = hasAllFields && isValidDateTime();
+            let isDateTimeValid = true;
+            let isPickupTimeValid = true;
+            let isDropoffTimeValid = true;
+            let errorMsg = '';
+
+            if (hasAllFields) {
+                // Check if pickup time is valid (at least 2 hours from now if today)
+                const [pickupHour, pickupMinute] = bookingData.pickupTime.split(':').map(Number);
+                isPickupTimeValid = isTimeAvailableForPickup(pickupHour, pickupMinute, bookingData.pickupDate);
+                
+                // Check if dropoff time is valid (after pickup time if same day)
+                const [dropoffHour, dropoffMinute] = bookingData.dropoffTime.split(':').map(Number);
+                isDropoffTimeValid = isTimeAvailableForDropoff(dropoffHour, dropoffMinute);
+                
+                // Check overall date/time validity
+                isDateTimeValid = isValidDateTime() && isPickupTimeValid && isDropoffTimeValid;
+
+                // Set specific error messages
+                if (!isPickupTimeValid) {
+                    const today = new Date();
+                    const selectedDay = new Date(bookingData.pickupDate!);
+                    selectedDay.setHours(0, 0, 0, 0);
+                    const todayDay = new Date(today);
+                    todayDay.setHours(0, 0, 0, 0);
+                    
+                    if (selectedDay.getTime() === todayDay.getTime()) {
+                        errorMsg = 'Pickup time must be at least 2 hours from now';
+                    }
+                } else if (!isDropoffTimeValid) {
+                    const pickupDate = new Date(bookingData.pickupDate!);
+                    const dropoffDate = new Date(bookingData.dropoffDate!);
+                    
+                    if (pickupDate.toDateString() === dropoffDate.toDateString()) {
+                        errorMsg = 'Drop-off time must be after pickup time on the same day';
+                    }
+                } else if (!isValidDateTime()) {
+                    errorMsg = 'Drop-off date and time must be after pickup date and time';
+                }
+            }
             
             const validationErrors = {
                 pickupDate: !!bookingData.pickupDate && (hasAllFields ? isDateTimeValid : true),
-                pickupTime: !!bookingData.pickupTime && (hasAllFields ? isDateTimeValid : true),
+                pickupTime: !!bookingData.pickupTime && (hasAllFields ? isPickupTimeValid : true),
                 pickupLocation: !!bookingData.pickupLocation,
                 dropoffDate: !!bookingData.dropoffDate && (hasAllFields ? isDateTimeValid : true),
-                dropoffTime: !!bookingData.dropoffTime && (hasAllFields ? isDateTimeValid : true),
+                dropoffTime: !!bookingData.dropoffTime && (hasAllFields ? isDropoffTimeValid : true),
                 dropoffLocation: !!bookingData.dropoffLocation
             };
 
@@ -178,8 +266,8 @@ export default function BookingPage() {
                 return;
             }
 
-            if (!isDateTimeValid) {
-                setErrorMessage('Drop-off date and time must be after pickup date and time');
+            if (!isDateTimeValid || !isPickupTimeValid || !isDropoffTimeValid) {
+                setErrorMessage(errorMsg);
                 return;
             }
 
@@ -296,7 +384,9 @@ export default function BookingPage() {
         value: string,
         onChange: (time: string) => void,
         label: string,
-        isValid: boolean = true
+        isValid: boolean = true,
+        isPickup: boolean = false,
+        selectedDate: Date | null = null
     ) => {
         const borderClass = isValid ? 'border-gray-300 dark:border-gray-600' : 'border-red-500';
         const focusClass = isValid ? 'focus:ring-[#9747FF] focus:border-transparent' : 'focus:ring-red-500 focus:border-red-500';
@@ -314,11 +404,17 @@ export default function BookingPage() {
                     className={`w-16 p-2.5 border ${validClass} rounded-lg focus:ring-2 ${focusClass} text-gray-800 dark:text-white dark:bg-gray-700 text-sm`}
                 >
                     <option value="">HH</option>
-                    {Array.from({ length: 24 }, (_, i) => (
-                        <option key={i} value={i.toString().padStart(2, '0')}>
-                            {i.toString().padStart(2, '0')}
-                        </option>
-                    ))}
+                    {Array.from({ length: 24 }, (_, i) => {
+                        const isAvailable = isPickup 
+                            ? isTimeAvailableForPickup(i, 0, selectedDate)
+                            : isTimeAvailableForDropoff(i, 0);
+                        
+                        return isAvailable ? (
+                            <option key={i} value={i.toString().padStart(2, '0')}>
+                                {i.toString().padStart(2, '0')}
+                            </option>
+                        ) : null;
+                    })}
                 </select>
                 <span className="text-gray-700 dark:text-gray-300 font-bold">:</span>
                 <select
@@ -331,10 +427,18 @@ export default function BookingPage() {
                     className={`w-16 p-2.5 border ${validClass} rounded-lg focus:ring-2 ${focusClass} text-gray-800 dark:text-white dark:bg-gray-700 text-sm`}
                 >
                     <option value="">MM</option>
-                    <option value="00">00</option>
-                    <option value="15">15</option>
-                    <option value="30">30</option>
-                    <option value="45">45</option>
+                    {['00', '15', '30', '45'].map((minute) => {
+                        const currentHour = parseInt(value.split(':')[0] || '0');
+                        const isAvailable = isPickup 
+                            ? isTimeAvailableForPickup(currentHour, parseInt(minute), selectedDate)
+                            : isTimeAvailableForDropoff(currentHour, parseInt(minute));
+                        
+                        return isAvailable ? (
+                            <option key={minute} value={minute}>
+                                {minute}
+                            </option>
+                        ) : null;
+                    })}
                 </select>
             </div>
         );
@@ -388,7 +492,9 @@ export default function BookingPage() {
                                     setTimeout(() => validateDateTimeFields(), 0);
                                 },
                                 'Pickup Time',
-                                fieldValidation.pickupTime
+                                fieldValidation.pickupTime,
+                                true, // isPickup
+                                bookingData.pickupDate // selectedDate
                             )}
                         </div>
                     </div>
@@ -459,7 +565,9 @@ export default function BookingPage() {
                                     setTimeout(() => validateDateTimeFields(), 0);
                                 },
                                 'Drop-off Time',
-                                fieldValidation.dropoffTime
+                                fieldValidation.dropoffTime,
+                                false, // isPickup
+                                bookingData.dropoffDate // selectedDate
                             )}
                         </div>
                     </div>
