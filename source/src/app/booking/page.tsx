@@ -65,6 +65,14 @@ async function fetchCarsFromSupabase(): Promise<Car[]> {
 }
 
 export default function BookingPage() {
+    // Helper function to format date for database without timezone issues
+    const formatDateForDB = (date: Date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
     const [currentStep, setCurrentStep] = useState(1);
     const [bookingData, setBookingData] = useState<BookingData>({
         pickupDate: null,
@@ -99,8 +107,8 @@ export default function BookingPage() {
     // Use the optimized car availability hook
     const { availableCars, isLoading, error: availabilityError } = useCarAvailability(
         cars,
-        bookingData.pickupDate?.toISOString().split('T')[0] || '',
-        bookingData.dropoffDate?.toISOString().split('T')[0] || '',
+        bookingData.pickupDate ? formatDateForDB(bookingData.pickupDate) : '',
+        bookingData.dropoffDate ? formatDateForDB(bookingData.dropoffDate) : '',
         bookingData.pickupTime,
         bookingData.dropoffTime
     );
@@ -136,34 +144,38 @@ export default function BookingPage() {
     };
 
     const isPastDate = (date: Date) => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        return date < today;
+        const now = new Date();
+        const tomorrow = new Date(now);
+        tomorrow.setDate(now.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0);
+        return date < tomorrow;
     };
 
-    // Helper function to check if a time is available for pickup (at least 2 hours from now)
+    // Helper function to check if a time is available for pickup (at least 24 hours from now)
     const isTimeAvailableForPickup = (hour: number, minute: number, selectedDate: Date | null) => {
         if (!selectedDate) return true;
         
-        const today = new Date();
+        const now = new Date();
+        const tomorrow = new Date(now);
+        tomorrow.setDate(now.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0);
+        
         const selectedDay = new Date(selectedDate);
         selectedDay.setHours(0, 0, 0, 0);
-        const todayDay = new Date(today);
-        todayDay.setHours(0, 0, 0, 0);
         
-        // If selected date is not today, all times are available
-        if (selectedDay.getTime() !== todayDay.getTime()) {
-            return true;
+        // If selected date is tomorrow, check if time is at least 24 hours from now
+        if (selectedDay.getTime() === tomorrow.getTime()) {
+            const selectedDateTime = new Date(selectedDate);
+            selectedDateTime.setHours(hour, minute, 0, 0);
+            
+            const twentyFourHoursFromNow = new Date(now);
+            twentyFourHoursFromNow.setHours(now.getHours() + 24, now.getMinutes(), 0, 0);
+            
+            return selectedDateTime >= twentyFourHoursFromNow;
         }
         
-        // If selected date is today, check if time is at least 2 hours from now
-        const selectedDateTime = new Date(selectedDate);
-        selectedDateTime.setHours(hour, minute, 0, 0);
-        
-        const twoHoursFromNow = new Date(today);
-        twoHoursFromNow.setHours(today.getHours() + 2, today.getMinutes(), 0, 0);
-        
-        return selectedDateTime >= twoHoursFromNow;
+        // If selected date is day after tomorrow or later, all times are available
+        return true;
     };
 
     // Helper function to check if dropoff time is valid (after pickup time)
@@ -182,13 +194,12 @@ export default function BookingPage() {
         
         // If same date, dropoff time must be after pickup time
         const [pickupHour, pickupMinute] = bookingData.pickupTime.split(':').map(Number);
-        const dropoffDateTime = new Date();
-        dropoffDateTime.setHours(hour, minute, 0, 0);
         
-        const pickupDateTime = new Date();
-        pickupDateTime.setHours(pickupHour, pickupMinute, 0, 0);
+        // Create time objects for comparison
+        const dropoffTime = hour * 60 + minute; // Convert to minutes
+        const pickupTime = pickupHour * 60 + pickupMinute; // Convert to minutes
         
-        return dropoffDateTime > pickupDateTime;
+        return dropoffTime > pickupTime;
     };
 
     const isValidDateTime = () => {
@@ -196,8 +207,14 @@ export default function BookingPage() {
             return false;
         }
 
-        const pickupDateTime = new Date(`${bookingData.pickupDate.toDateString()} ${bookingData.pickupTime}`);
-        const dropoffDateTime = new Date(`${bookingData.dropoffDate.toDateString()} ${bookingData.dropoffTime}`);
+        // Create date objects using the same date but with proper time handling
+        const pickupDateTime = new Date(bookingData.pickupDate);
+        const [pickupHour, pickupMinute] = bookingData.pickupTime.split(':').map(Number);
+        pickupDateTime.setHours(pickupHour, pickupMinute, 0, 0);
+        
+        const dropoffDateTime = new Date(bookingData.dropoffDate);
+        const [dropoffHour, dropoffMinute] = bookingData.dropoffTime.split(':').map(Number);
+        dropoffDateTime.setHours(dropoffHour, dropoffMinute, 0, 0);
         
         return dropoffDateTime > pickupDateTime;
     };
@@ -229,14 +246,15 @@ export default function BookingPage() {
 
                 // Set specific error messages
                 if (!isPickupTimeValid) {
-                    const today = new Date();
+                    const now = new Date();
+                    const tomorrow = new Date(now);
+                    tomorrow.setDate(now.getDate() + 1);
+                    tomorrow.setHours(0, 0, 0, 0);
                     const selectedDay = new Date(bookingData.pickupDate!);
                     selectedDay.setHours(0, 0, 0, 0);
-                    const todayDay = new Date(today);
-                    todayDay.setHours(0, 0, 0, 0);
                     
-                    if (selectedDay.getTime() === todayDay.getTime()) {
-                        errorMsg = 'Pickup time must be at least 2 hours from now';
+                    if (selectedDay.getTime() === tomorrow.getTime()) {
+                        errorMsg = 'Pickup time must be at least 24 hours from now';
                     }
                 } else if (!isDropoffTimeValid) {
                     const pickupDate = new Date(bookingData.pickupDate!);
@@ -304,7 +322,6 @@ export default function BookingPage() {
             setBookingData(prev => ({ ...prev, totalPrice: total }));
             setCurrentStep(4);
         } else if (currentStep === 4) {
-            // Confirm booking
             await submitBooking();
         }
     };
@@ -337,10 +354,10 @@ export default function BookingPage() {
                     car_brand: bookingData.selectedCar?.title,
                     insurance_type: bookingData.insuranceType,
                     pickup_location: bookingData.pickupLocation,
-                    pickup_date: bookingData.pickupDate?.toISOString().split('T')[0],
+                    pickup_date: bookingData.pickupDate ? formatDateForDB(bookingData.pickupDate) : null,
                     pickup_time: bookingData.pickupTime,
                     dropoff_location: bookingData.dropoffLocation,
-                    dropoff_date: bookingData.dropoffDate?.toISOString().split('T')[0],
+                    dropoff_date: bookingData.dropoffDate ? formatDateForDB(bookingData.dropoffDate) : null,
                     dropoff_time: bookingData.dropoffTime,
                     total_price: bookingData.totalPrice
                 }),
