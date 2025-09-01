@@ -6,16 +6,17 @@ import 'react-datepicker/dist/react-datepicker.css';
 import './_components/costum-datepicker.css';
 import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
+import { useCarAvailability } from '@/hooks/useCarAvailability';
 
 // Updated interface for Supabase car data
 interface Car {
     id: string;
     title: string;
-    description: string;
+    description?: string;
     price: number;
     size: string;
     thumbnail_url: string;
-    available: boolean;
+    available?: boolean;
 }
 
 interface BookingData {
@@ -63,33 +64,6 @@ async function fetchCarsFromSupabase(): Promise<Car[]> {
     }
 }
 
-async function checkCarAvailability(carId: string, pickupDate: Date, dropoffDate: Date): Promise<boolean> {
-    try {
-        const response = await fetch('/api/cars/availability', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                car_id: carId,
-                pickup_date: pickupDate.toISOString().split('T')[0],
-                dropoff_date: dropoffDate.toISOString().split('T')[0]
-            }),
-        });
-        
-        if (!response.ok) {
-            console.error(`Availability API error for car ${carId}:`, response.status);
-            return false;
-        }
-        
-        const data = await response.json();
-        return data.available;
-    } catch (error) {
-        console.error("Error checking availability:", error);
-        return false;
-    }
-}
-
 export default function BookingPage() {
     const [currentStep, setCurrentStep] = useState(1);
     const [bookingData, setBookingData] = useState<BookingData>({
@@ -105,13 +79,21 @@ export default function BookingPage() {
     });
     
     const [cars, setCars] = useState<Car[]>([]);
-    const [availableCars, setAvailableCars] = useState<Car[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const { user } = useAuth();
     const router = useRouter();
+
+    // Use the optimized car availability hook
+    const { availableCars, isLoading, error: availabilityError } = useCarAvailability(
+        cars,
+        bookingData.pickupDate?.toISOString().split('T')[0] || '',
+        bookingData.dropoffDate?.toISOString().split('T')[0] || '',
+        bookingData.pickupTime,
+        bookingData.dropoffTime
+    );
 
     // Redirect to login if user is not authenticated
     useEffect(() => {
@@ -127,14 +109,12 @@ export default function BookingPage() {
         }
     }, [user]);
 
-    // Check availability when date/time changes (only after user fills in dates/times)
+    // Show availability errors
     useEffect(() => {
-        if (bookingData.pickupDate && bookingData.dropoffDate && 
-            bookingData.pickupTime && bookingData.dropoffTime && 
-            cars.length > 0) {
-            checkAvailability();
+        if (availabilityError) {
+            setErrorMessage(availabilityError);
         }
-    }, [bookingData.pickupDate, bookingData.dropoffDate, bookingData.pickupTime, bookingData.dropoffTime, cars]);
+    }, [availabilityError]);
 
     const loadCars = async () => {
         try {
@@ -143,26 +123,6 @@ export default function BookingPage() {
         } catch (error) {
             console.error("Error loading cars:", error);
         }
-    };
-
-    // Check availability when date/time changes
-    const checkAvailability = async () => {
-        setIsLoading(true);
-        const available: Car[] = [];
-
-        for (const car of cars) {
-            const isAvailable = await checkCarAvailability(
-                car.id,
-                bookingData.pickupDate!,
-                bookingData.dropoffDate!
-            );
-            if (isAvailable) {
-                available.push(car);
-            }
-        }
-
-        setAvailableCars(available);
-        setIsLoading(false);
     };
 
     const isPastDate = (date: Date) => {
@@ -198,8 +158,7 @@ export default function BookingPage() {
                 return;
             }
 
-            // Check car availability for next step
-            await checkAvailability();
+            // Car availability is automatically checked by the hook
             setCurrentStep(2);
         } else if (currentStep === 2) {
             // Validate car selection
@@ -250,7 +209,7 @@ export default function BookingPage() {
             return;
         }
 
-        setIsLoading(true);
+        setIsSubmitting(true);
         setErrorMessage('');
 
         try {
@@ -287,7 +246,7 @@ export default function BookingPage() {
             console.error('Error submitting booking:', error);
             setErrorMessage('An error occurred. Please try again.');
         } finally {
-            setIsLoading(false);
+            setIsSubmitting(false);
         }
     };
 
@@ -471,7 +430,9 @@ export default function BookingPage() {
                                     }}
                                 />
                                 <h3 className="font-semibold text-lg text-gray-800 dark:text-white">{car.title}</h3>
-                                <p className="text-gray-700 dark:text-gray-300 text-sm mb-2">{car.description}</p>
+                                {car.description && (
+                                    <p className="text-gray-700 dark:text-gray-300 text-sm mb-2">{car.description}</p>
+                                )}
                                 <p className="text-[#9747FF] font-bold text-xl">${car.price}/day</p>
                                 <p className="text-sm text-gray-700 dark:text-gray-300 capitalize">{car.size} car</p>
                             </div>
@@ -636,14 +597,14 @@ export default function BookingPage() {
                         
                         <button
                             onClick={handleNext}
-                            disabled={isLoading}
+                            disabled={isLoading || isSubmitting}
                             className={`px-6 py-3 rounded-lg font-semibold ${
-                                isLoading
+                                isLoading || isSubmitting
                                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                     : 'bg-[#9747FF] text-white hover:bg-[#7a33cc]'
                             }`}
                         >
-                            {isLoading ? 'Processing...' : currentStep === 4 ? 'Confirm Booking' : 'Continue'}
+                            {isSubmitting ? 'Confirming...' : isLoading ? 'Checking availability...' : currentStep === 4 ? 'Confirm Booking' : 'Continue'}
                         </button>
                     </div>
                 </>

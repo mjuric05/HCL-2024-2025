@@ -71,6 +71,9 @@ CREATE POLICY "Users can create own bookings" ON public.bookings
 CREATE POLICY "Users can update own bookings" ON public.bookings
   FOR UPDATE USING (auth.uid() = user_id);
 
+CREATE POLICY "Users can delete own bookings" ON public.bookings
+  FOR DELETE USING (auth.uid() = user_id);
+
 -- Cars: Everyone can view cars, only authenticated users can see them
 CREATE POLICY "Anyone can view cars" ON public.cars
   FOR SELECT USING (true);
@@ -112,6 +115,46 @@ INSERT INTO public.cars (title, description, price, size, thumbnail_url) VALUES
 ('Audi A6 Avant', '3.0L, Diesel, Automatic, Black', 200, 'large', 'https://images.ctfassets.net/f8dn2cn69vjh/7ECPXCXiKOSRkvkpNX8Idd/813910205e8520d8d8bb2ca4e13c57e1/AudiA6Avant.jpg'),
 ('VW Passat CC R Line', '2.0L, Diesel, Automatic, White', 120, 'large', 'https://images.ctfassets.net/f8dn2cn69vjh/5F2QoRFh4MwExaidx99Kit/7dc20bc76a46e99c3c2fb57eae5bdd37/PassatCCRLine.jpg');
 
+-- Create a function to check car availability that can read all bookings
+CREATE OR REPLACE FUNCTION check_car_availability(
+  car_ids_input UUID[],
+  pickup_date_input DATE,
+  pickup_time_input TIME,
+  dropoff_date_input DATE,
+  dropoff_time_input TIME
+)
+RETURNS UUID[]
+LANGUAGE SQL
+SECURITY DEFINER  -- This allows the function to bypass RLS
+AS $$
+  SELECT ARRAY(
+    SELECT DISTINCT car_id 
+    FROM bookings 
+    WHERE car_id = ANY(car_ids_input)
+    AND (
+      -- Check for datetime overlap using the standard logic:
+      -- existing_start < requested_end AND existing_end > requested_start
+      (pickup_date + pickup_time::interval) < (dropoff_date_input + dropoff_time_input::interval)
+      AND
+      (dropoff_date + dropoff_time::interval) > (pickup_date_input + pickup_time_input::interval)
+    )
+  );
+$$;
+
+-- Grant execute permission to authenticated users
+GRANT EXECUTE ON FUNCTION check_car_availability TO authenticated;
+GRANT EXECUTE ON FUNCTION check_car_availability TO anon;
+
+-- Alternative: Create a more permissive RLS policy for availability checking
+-- This policy allows reading booking data for availability purposes
+CREATE POLICY "Allow availability checking" ON public.bookings
+  FOR SELECT 
+  USING (
+    -- Allow reading car_id and date/time fields for availability checking
+    -- You can make this more restrictive if needed
+    true
+  );
+
 
 -- ===============================================
 -- MIGRATION SCRIPT FOR EXISTING DATABASES
@@ -121,6 +164,10 @@ INSERT INTO public.cars (title, description, price, size, thumbnail_url) VALUES
 -- Add new columns to existing bookings table
 -- ALTER TABLE public.bookings ADD COLUMN IF NOT EXISTS car_id UUID REFERENCES public.cars(id);
 -- ALTER TABLE public.bookings ADD COLUMN IF NOT EXISTS dropoff_location TEXT;
+
+-- Add DELETE policy for bookings (required for booking cancellation)
+-- CREATE POLICY "Users can delete own bookings" ON public.bookings
+--   FOR DELETE USING (auth.uid() = user_id);
 
 -- Note: You may need to update existing records to have dropoff_location values
 -- UPDATE public.bookings SET dropoff_location = pickup_location WHERE dropoff_location IS NULL;
