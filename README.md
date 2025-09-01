@@ -19,7 +19,7 @@
 ### Semester Project
 
 - Link to your production version: [**Production Version**](https://hcl-2024-2025.vercel.app) <!-- Replace with actual URL -->
-- Link to your final report: [**Final Report**](URL_TO_FINAL_REPORT) <!-- Replace with actual URL -->
+- Link to your final report: [**Final Report**](https://github.com/mjuric05/HCL-2024-2025/blob/main/assignments/Final%20Report/Final%20Report.pdf) <!-- Replace with actual URL -->
 <!-- Add more as necessary -->
 
 ### Semester Assignments
@@ -37,7 +37,7 @@
 - [X] The application will be used from a web browser
 - [X] It will be accessible on devices of different sizes
 - [X] Users can search/filter products or services
-- [ ] The application will support user login for showing private content
+- [X] The application will support user login for showing private content
 - [X] One of the public pages will be a blog containing multiple posts with diverse content (images, videos, code snippets)
 - [X] Part of the application's content will be stored in a remote headless CMS system
 
@@ -45,5 +45,5 @@
 
 - [X] Show the production version of the project
 - [X] The production version will be deployed online on an appropriate cloud platform ([Vercel](https://vercel.com), [Netlify](https://www.netlify.com/) or a similar service)
-- [ ] Analyze the application's performance ([PageSpeed Insights](https://pagespeed.web.dev/))
-- [ ] The analysis results will be part of the final report
+- [X] Analyze the application's performance ([PageSpeed Insights](https://pagespeed.web.dev/))
+- [X] The analysis results will be part of the final report
