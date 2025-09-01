@@ -93,7 +93,7 @@ export default function BookingPage() {
         dropoffLocation: true
     });
 
-    const { user } = useAuth();
+    const { user, loading: authLoading } = useAuth();
     const router = useRouter();
 
     // Use the optimized car availability hook
@@ -105,12 +105,12 @@ export default function BookingPage() {
         bookingData.dropoffTime
     );
 
-    // Redirect to login if user is not authenticated
+    // Redirect to login if user is not authenticated (but wait for auth to finish loading)
     useEffect(() => {
-        if (user === null) {
+        if (!authLoading && user === null) {
             router.push('/sign_in_and_log_in');
         }
-    }, [user, router]);
+    }, [user, authLoading, router]);
 
     // Load cars on component mount
     useEffect(() => {
@@ -157,24 +157,28 @@ export default function BookingPage() {
 
         if (currentStep === 1) {
             // Validate date/time/location step
+            const hasAllFields = !!(bookingData.pickupDate && bookingData.pickupTime && bookingData.pickupLocation && 
+                bookingData.dropoffDate && bookingData.dropoffTime && bookingData.dropoffLocation);
+            
+            const isDateTimeValid = hasAllFields && isValidDateTime();
+            
             const validationErrors = {
-                pickupDate: !!bookingData.pickupDate,
-                pickupTime: !!bookingData.pickupTime,
+                pickupDate: !!bookingData.pickupDate && (hasAllFields ? isDateTimeValid : true),
+                pickupTime: !!bookingData.pickupTime && (hasAllFields ? isDateTimeValid : true),
                 pickupLocation: !!bookingData.pickupLocation,
-                dropoffDate: !!bookingData.dropoffDate,
-                dropoffTime: !!bookingData.dropoffTime,
+                dropoffDate: !!bookingData.dropoffDate && (hasAllFields ? isDateTimeValid : true),
+                dropoffTime: !!bookingData.dropoffTime && (hasAllFields ? isDateTimeValid : true),
                 dropoffLocation: !!bookingData.dropoffLocation
             };
 
             setFieldValidation(validationErrors);
 
-            if (!bookingData.pickupDate || !bookingData.pickupTime || !bookingData.pickupLocation || 
-                !bookingData.dropoffDate || !bookingData.dropoffTime || !bookingData.dropoffLocation) {
+            if (!hasAllFields) {
                 setErrorMessage('Please fill in all fields');
                 return;
             }
 
-            if (!isValidDateTime()) {
+            if (!isDateTimeValid) {
                 setErrorMessage('Drop-off date and time must be after pickup date and time');
                 return;
             }
@@ -271,6 +275,23 @@ export default function BookingPage() {
         }
     };
 
+    // Helper function to validate date/time when fields change
+    const validateDateTimeFields = () => {
+        const hasAllDateTimeFields = !!(bookingData.pickupDate && bookingData.pickupTime && 
+            bookingData.dropoffDate && bookingData.dropoffTime);
+        
+        if (hasAllDateTimeFields) {
+            const isValid = isValidDateTime();
+            setFieldValidation(prev => ({
+                ...prev,
+                pickupDate: isValid,
+                pickupTime: isValid,
+                dropoffDate: isValid,
+                dropoffTime: isValid
+            }));
+        }
+    };
+
     const renderTimePicker = (
         value: string,
         onChange: (time: string) => void,
@@ -338,6 +359,8 @@ export default function BookingPage() {
                                     onChange={(date) => {
                                         setBookingData(prev => ({ ...prev, pickupDate: date }));
                                         setFieldValidation(prev => ({ ...prev, pickupDate: true }));
+                                        // Validate date/time combination after state updates
+                                        setTimeout(() => validateDateTimeFields(), 0);
                                     }}
                                     filterDate={(date) => !isPastDate(date)}
                                     dateFormat="dd.MM.yyyy"
@@ -361,6 +384,8 @@ export default function BookingPage() {
                                 (time) => {
                                     setBookingData(prev => ({ ...prev, pickupTime: time }));
                                     setFieldValidation(prev => ({ ...prev, pickupTime: true }));
+                                    // Validate date/time combination after state updates
+                                    setTimeout(() => validateDateTimeFields(), 0);
                                 },
                                 'Pickup Time',
                                 fieldValidation.pickupTime
@@ -405,6 +430,8 @@ export default function BookingPage() {
                                     onChange={(date) => {
                                         setBookingData(prev => ({ ...prev, dropoffDate: date }));
                                         setFieldValidation(prev => ({ ...prev, dropoffDate: true }));
+                                        // Validate date/time combination after state updates
+                                        setTimeout(() => validateDateTimeFields(), 0);
                                     }}
                                     filterDate={(date) => !isPastDate(date)}
                                     dateFormat="dd.MM.yyyy"
@@ -428,6 +455,8 @@ export default function BookingPage() {
                                 (time) => {
                                     setBookingData(prev => ({ ...prev, dropoffTime: time }));
                                     setFieldValidation(prev => ({ ...prev, dropoffTime: true }));
+                                    // Validate date/time combination after state updates
+                                    setTimeout(() => validateDateTimeFields(), 0);
                                 },
                                 'Drop-off Time',
                                 fieldValidation.dropoffTime
@@ -593,7 +622,7 @@ export default function BookingPage() {
     return (
         <main className="flex min-h-screen flex-col items-center p-4 pt-24 md:p-10 md:pt-28">
             {/* Show loading while checking authentication */}
-            {user === null ? (
+            {authLoading || user === null ? (
                 <div className="text-center py-8">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#9747FF] mx-auto"></div>
                     <p className="mt-4 text-gray-700 dark:text-gray-300">Checking authentication...</p>
@@ -602,28 +631,43 @@ export default function BookingPage() {
                 <>
                     {/* Progress Indicator */}
                     <div className="w-full max-w-4xl mb-8">
-                        <div className="flex justify-between">
-                            {[
-                                { step: 1, label: 'Dates & Locations' },
-                                { step: 2, label: 'Choose Car' },
-                                { step: 3, label: 'Insurance' },
-                                { step: 4, label: 'Confirm' }
-                            ].map(({ step, label }) => (
-                                <div key={step} className="flex flex-col items-center">
-                                    <div
-                                        className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg mb-3 ${
-                                            currentStep >= step
-                                                ? 'bg-[#9747FF] text-white'
-                                                : 'bg-gray-300 text-gray-600'
-                                        }`}
-                                    >
-                                        {step}
+                        {/* Desktop Progress Indicator - Hidden on mobile */}
+                        <div className="hidden md:block">
+                            <div className="flex justify-between">
+                                {[
+                                    { step: 1, label: 'Dates & Locations' },
+                                    { step: 2, label: 'Choose Car' },
+                                    { step: 3, label: 'Insurance' },
+                                    { step: 4, label: 'Confirm' }
+                                ].map(({ step, label }) => (
+                                    <div key={step} className="flex flex-col items-center">
+                                        <div
+                                            className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg mb-3 ${
+                                                currentStep >= step
+                                                    ? 'bg-[#9747FF] text-white'
+                                                    : 'bg-gray-300 text-gray-600'
+                                            }`}
+                                        >
+                                            {step}
+                                        </div>
+                                        <span className="text-lg font-bold text-[#9747FF] text-center leading-tight">
+                                            {label}
+                                        </span>
                                     </div>
-                                    <span className="text-lg font-bold text-[#9747FF] text-center leading-tight">
-                                        {label}
-                                    </span>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Mobile Progress Bar - Hidden on desktop */}
+                        <div className="md:hidden">
+                            <div className="mb-4">
+                                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                                    <div 
+                                        className="bg-[#9747FF] h-3 rounded-full transition-all duration-300 ease-in-out"
+                                        style={{ width: `${(currentStep / 4) * 100}%` }}
+                                    ></div>
                                 </div>
-                            ))}
+                            </div>
                         </div>
                     </div>
 
