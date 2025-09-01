@@ -1,8 +1,9 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
+import { Toast } from "./toast";
 
 type Page = {
     title: string;
@@ -95,7 +96,9 @@ function processPage(page: Page, index: number, pathname: string, closeMenu: () 
 
 export function Navigation() {
     const pathname = usePathname();
+    const router = useRouter();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [showLogoutMessage, setShowLogoutMessage] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const { user, signOut, loading } = useAuth();
 
@@ -183,6 +186,13 @@ export function Navigation() {
     const handleLogout = async () => {
         await signOut();
         closeMenu();
+        setShowLogoutMessage(true);
+        
+        // Redirect to home page after showing message
+        setTimeout(() => {
+            setShowLogoutMessage(false);
+            router.push('/');
+        }, 2000);
     };
 
     useEffect(() => {
@@ -250,6 +260,14 @@ export function Navigation() {
                     }}
                 />
             </div>
+            
+            <Toast
+                message="Successfully logged out! Redirecting to home page..."
+                type="success"
+                show={showLogoutMessage}
+                onClose={() => setShowLogoutMessage(false)}
+                duration={2000}
+            />
         </div>
     );
 }

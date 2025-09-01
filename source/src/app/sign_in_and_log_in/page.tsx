@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
+import { Toast } from "@/components/toast";
 
 export default function SignInAndLogInPage() {
     const [showPasswordCreate, setShowPasswordCreate] = useState(false);
@@ -31,6 +32,7 @@ export default function SignInAndLogInPage() {
     const [resendLoading, setResendLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
+    const [showLoginSuccess, setShowLoginSuccess] = useState(false);
     const [resendEmail, setResendEmail] = useState("");
 
     const { signIn, signUp, resendConfirmation } = useAuth();
@@ -119,13 +121,18 @@ export default function SignInAndLogInPage() {
     const handleLogin = async () => {
         setLoading(true);
         setErrorMessage("");
+        setSuccessMessage("");
         
         const { error } = await signIn(loginFields.email, loginFields.password);
         
         if (error) {
             setErrorMessage(error.message);
         } else {
-            router.push('/')
+            setShowLoginSuccess(true);
+            // Redirect after a short delay to show the success message
+            setTimeout(() => {
+                router.push('/');
+            }, 1500);
         }
         
         setLoading(false);
@@ -472,6 +479,14 @@ export default function SignInAndLogInPage() {
                     </button>
                 </div>
             </div>
+            
+            <Toast
+                message="Successfully logged in! Redirecting to home page..."
+                type="success"
+                show={showLoginSuccess}
+                onClose={() => setShowLoginSuccess(false)}
+                duration={1500}
+            />
         </main>
     );
 }
